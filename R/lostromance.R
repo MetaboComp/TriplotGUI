@@ -16,12 +16,12 @@ fun <- function(){
 
 }
 
-ggplotly()
+# ggplotly()
 
-URL to QR code
+# URL to QR code
 
-awk Workshop online
+# awk Workshop online
 
-conda environment
+# conda environment
 
-add beepr
+# add beepr

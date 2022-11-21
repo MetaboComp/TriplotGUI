@@ -1,0 +1,23 @@
+Package: TriplotGUI
+Type: Package
+Title: The triplot approach to add correlations and risk modelling to component-based analyses, and some other things
+Version: 0.1.1
+Author: Yingxiao Yan
+Maintainer: Yingxiao Yan <yingxiao@chalmers.se>
+Description: This package is designed for multivariate risk modelling and visualization.  
+    A latent variable analysis, which supplies scores and loadings (e.g. PCA, PLS or factor analysis) provides the core. Scores are then correlated to e.g. exposures and associated with risk from e.g. logistic regression.
+    The three layers that are used for visualizations are:
+    -Loadings
+    -Correlations
+    -Risk estimates
+License: GPL-2
+Imports:
+    ggplot2,
+    magrittr,
+    mixOmics,
+    survival
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.1
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
