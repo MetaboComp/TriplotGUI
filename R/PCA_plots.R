@@ -78,6 +78,10 @@ PCA_plots<-function(dataframe,
     as.data.frame()
   pca_object$scores<-scores
   pca_object$loadings<-loadings
+  variance<-pca$sdev %>%    ##egienvalue are the same as principal
+    as_tibble() %>%    ## Change the standard deviations into a tibble dataframe
+    frac_sd()
+
   }
 
   if(pc_type=="principal"){
@@ -102,6 +106,10 @@ PCA_plots<-function(dataframe,
     loadings<-as.data.frame(as.matrix(loadings))
     pca_object$scores<-scores
     pca_object$loadings<-loadings
+
+    variance<-pca$values[1:pc_num] %>%
+      as_tibble() %>%
+      frac_var()
   }
 
 
@@ -175,9 +183,9 @@ PCA_plots<-function(dataframe,
       geom_hline(yintercept = 0,
                  linetype=2)  +
 
-      scale_x_continuous(name = paste("Score PC", first_PC),
+      scale_x_continuous(name = paste("Score PC", first_PC, "(",variance[first_PC],"%) variance explained"),
                          limits=c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))) +
-      scale_y_continuous(name = paste("Score PC", second_PC),
+      scale_y_continuous(name = paste("Score PC", second_PC, "(",variance[second_PC],"%) variance explained"),
                          limits=c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC])))) +
       scale_color_discrete(name = paste(color_variable_name)) +
       scale_size_continuous(name = paste(size_variable_name)) +
@@ -212,9 +220,9 @@ PCA_plots<-function(dataframe,
      geom_hline(yintercept = 0,
                 linetype=2)  +
      #geom_text(size = 3, check_overlap = T)  +
-     scale_x_continuous(name = paste("Loading PC", first_PC),
+     scale_x_continuous(name = paste("Loading PC", first_PC, "(",variance[first_PC],"%) variance explained"),
                         limits =c(-max(abs(loadings[,first_PC])),max(abs(loadings[,first_PC])))) +
-     scale_y_continuous(name = paste("Loading PC", second_PC),
+     scale_y_continuous(name = paste("Loading PC", second_PC, "(",variance[second_PC],"%) variance explained"),
                         limits=c(-max(abs(loadings[,second_PC])),max(abs(loadings[,second_PC])))) +
      #scale_color_discrete(name = paste(color_variable_name)) +
      #scale_size_continuous(name = paste(size_variable_name)) +
@@ -241,9 +249,9 @@ PCA_plots<-function(dataframe,
         geom_hline(yintercept = 0,
                    linetype=2)  +
         #geom_text(size = 3, check_overlap = T)  +
-        scale_x_continuous(name = paste("Loading PC", first_PC),
+        scale_x_continuous(name = paste("Loading PC", first_PC, "(",variance[first_PC],"%) variance explained"),
                            limits =c(-max(abs(loadings[,first_PC])),max(abs(loadings[,first_PC])))) +
-        scale_y_continuous(name = paste("Loading PC", second_PC),
+        scale_y_continuous(name = paste("Loading PC", second_PC, "(",variance[second_PC],"%) variance explained"),
                            limits=c(-max(abs(loadings[,second_PC])),max(abs(loadings[,second_PC])))) +
         #scale_color_discrete(name = paste(color_variable_name)) +
         #scale_size_continuous(name = paste(size_variable_name)) +
@@ -296,7 +304,7 @@ PCA_plots<-function(dataframe,
       scale_y_continuous(name = paste("Score PC", second_PC) ,
                          limits =1.1*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC]))),
                          sec.axis = sec_axis(trans=~./(max(abs(scores[,second_PC]))/max(abs(loadings[,second_PC]))),
-                                             name =  paste("Loading PC", second_PC)  ,
+                                             name =  paste("Loading PC", second_PC, "(",variance[second_PC],"%) variance explained")  ,
                                              breaks=waiver()
                                              #              breaks =seq(-max(abs(loadings[,second_PC])),max(abs(loadings[,second_PC])),10)
                          )
@@ -304,7 +312,7 @@ PCA_plots<-function(dataframe,
       scale_x_continuous(name = paste("Score PC", first_PC),
                          limits =1.01*c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC]))),
                          sec.axis = sec_axis(trans=~./(max(abs(scores[,first_PC]))/max(abs(loadings[,first_PC]))),
-                                             name =  paste("Loading PC", first_PC) ,
+                                             name =  paste("Loading PC", first_PC, "(",variance[first_PC],"%) variance explained") ,
                                              breaks=waiver()
                                              #breaks =seq(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))
                                              )
@@ -345,7 +353,7 @@ PCA_plots<-function(dataframe,
           scale_y_continuous(name = paste("Score PC", second_PC) ,
                              limits =1.1*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC]))),
                              sec.axis = sec_axis(trans=~./(max(abs(scores[,second_PC]))/max(abs(loadings[,second_PC]))),
-                                                 name =  paste("Loading PC", second_PC)  ,
+                                                 name =  paste("Loading PC", second_PC, "(",variance[first_PC],"%) variance explained")  ,
                                                  breaks=waiver()
                                                  #              breaks =seq(-max(abs(loadings[,second_PC])),max(abs(loadings[,second_PC])),10)
                              )
@@ -353,7 +361,7 @@ PCA_plots<-function(dataframe,
           scale_x_continuous(name = paste("Score PC", first_PC),
                              limits =1.01*c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC]))),
                              sec.axis = sec_axis(trans=~./(max(abs(scores[,first_PC]))/max(abs(loadings[,first_PC]))),
-                                                 name =  paste("Loading PC", first_PC) ,
+                                                 name =  paste("Loading PC", first_PC, "(",variance[second_PC],"%) variance explained") ,
                                                  breaks=waiver()
                                                  #breaks =seq(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))
                              )
@@ -402,10 +410,10 @@ PCA_plots<-function(dataframe,
                    size=2,
                    vjust="inward",
                    hjust="inward") +
-        scale_y_continuous(name = paste("Score PC", second_PC) ,
+        scale_y_continuous(name = paste("Score PC", second_PC, "(",variance[second_PC],"%) variance explained") ,
                            limits =1.01*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC])))
         ) +
-        scale_x_continuous(name = paste("Score PC", first_PC),
+        scale_x_continuous(name = paste("Score PC", first_PC, "(",variance[first_PC],"%) variance explained"),
                            limits =1.01*c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))
         ) +
 
@@ -443,10 +451,10 @@ PCA_plots<-function(dataframe,
                      y=0, ## Starting y position of lines
                      color="Grey") +  ## color of the line
 
-        scale_y_continuous(name = paste("Score PC", second_PC) ,
+        scale_y_continuous(name = paste("Score PC", second_PC, "(",variance[second_PC],"%) variance explained") ,
                            limits =1.01*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC])))
         ) +
-        scale_x_continuous(name = paste("Score PC", first_PC),
+        scale_x_continuous(name = paste("Score PC", first_PC, "(",variance[first_PC],"%) variance explained"),
                            limits =1.01*c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))
         ) +
 
