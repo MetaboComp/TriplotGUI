@@ -41,6 +41,8 @@ PCA_plots<-function(dataframe,
                     second_PC=2,
                     loadings_name=T
 ){
+  frac_sd<- function(x){ x^2/sum(x^2)}
+  frac_var <- function(x){ x/sum(x)}
   library(ggplot2)
   library(ggrepel)
   library(tidyverse)
@@ -113,8 +115,7 @@ PCA_plots<-function(dataframe,
   }
 
 
-  frac_sd<- function(x){ x^2/sum(x^2)}
-  frac_var <- function(x){ x/sum(x)}
+
   if(plottype=="scree"){
 
     library(scales)
