@@ -20,7 +20,8 @@ PCA_plots(
   shape_variable_name = NULL,
   scale_scoreloading = T,
   first_PC = 1,
-  second_PC = 2
+  second_PC = 2,
+  loadings_name = T
 )
 }
 \arguments{

@@ -15,10 +15,14 @@
 #' @param scale_scoreloading
 #' @param first_PC
 #' @param second_PC
+#' @param loadings_name
 #' @return A PCA plot
 #' @export
 #'
 #' @examples
+#'
+#'
+############add clustering
 PCA_plots<-function(dataframe,
                     plottype=c("scree","score","loading","scoreloading"),
                     pc_type=c("prcomp","principle"),
@@ -34,9 +38,12 @@ PCA_plots<-function(dataframe,
                     shape_variable_name=NULL,
                     scale_scoreloading=T,
                     first_PC=1,
-                    second_PC=2
+                    second_PC=2,
+                    loadings_name=T
 ){
-
+  library(ggplot2)
+  library(ggrepel)
+  library(tidyverse)
   if(missing(pc_type)){pc_type="prcomp"}
   if(missing(plottype)){plottype="scoreloading"}
   dataframe<-as.data.frame(dataframe)
@@ -44,7 +51,7 @@ PCA_plots<-function(dataframe,
   for(i in 1:ncol(dataframe)){
     dataframe_numeric[,i]<-as.numeric(dataframe[,i])
   }
-  library(ggplot2)
+
   if(!pc_type%in%c("prcomp","principal")){
     stop("This method is not implemented")
   }
@@ -167,6 +174,7 @@ PCA_plots<-function(dataframe,
                  linetype=2) +
       geom_hline(yintercept = 0,
                  linetype=2)  +
+
       scale_x_continuous(name = paste("Score PC", first_PC),
                          limits=c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))) +
       scale_y_continuous(name = paste("Score PC", second_PC),
@@ -182,7 +190,7 @@ PCA_plots<-function(dataframe,
     }
 
   if(plottype=="loading"){
-
+    if(loadings_name==T){
 
    loading_plot<-ggplot(loadings,
           aes(x=loadings[,first_PC],
@@ -193,15 +201,17 @@ PCA_plots<-function(dataframe,
                   x=0, ## Starting x position of lines
                   y=0, ## Starting y position of lines
                   color="Grey") +  ## color of the line
-     geom_label(aes(x=loadings[,first_PC],
+     geom_label_repel(aes(x=loadings[,first_PC],
                     y=loadings[,second_PC],
                     label=rownames(loadings)),   ## Add label
                 size=2,
-                vjust="outward") +    ## The label is adjusted outwarded
+                vjust="outward"
+                ) +    ## The label is adjusted outwarded
      geom_vline(xintercept = 0,
                 linetype=2) +
      geom_hline(yintercept = 0,
                 linetype=2)  +
+     #geom_text(size = 3, check_overlap = T)  +
      scale_x_continuous(name = paste("Loading PC", first_PC),
                         limits =c(-max(abs(loadings[,first_PC])),max(abs(loadings[,first_PC])))) +
      scale_y_continuous(name = paste("Loading PC", second_PC),
@@ -214,6 +224,36 @@ PCA_plots<-function(dataframe,
      theme(panel.grid.major = element_blank(),
            panel.grid.minor = element_blank())
    plot_object$loading_plot<-loading_plot
+    }
+    if(loadings_name==F){
+
+      loading_plot<-ggplot(loadings,
+                           aes(x=loadings[,first_PC],
+                               y=loadings [,second_PC] ))+
+        geom_point() +
+        geom_segment(aes(xend=loadings[,first_PC],  ## x positions dots to be connected (a vector)
+                         yend=loadings [,second_PC]), ## y positions dots to be connected (a vector)
+                     x=0, ## Starting x position of lines
+                     y=0, ## Starting y position of lines
+                     color="Grey") +  ## color of the line
+        geom_vline(xintercept = 0,
+                   linetype=2) +
+        geom_hline(yintercept = 0,
+                   linetype=2)  +
+        #geom_text(size = 3, check_overlap = T)  +
+        scale_x_continuous(name = paste("Loading PC", first_PC),
+                           limits =c(-max(abs(loadings[,first_PC])),max(abs(loadings[,first_PC])))) +
+        scale_y_continuous(name = paste("Loading PC", second_PC),
+                           limits=c(-max(abs(loadings[,second_PC])),max(abs(loadings[,second_PC])))) +
+        #scale_color_discrete(name = paste(color_variable_name)) +
+        #scale_size_continuous(name = paste(size_variable_name)) +
+        #scale_shape_discrete(name = paste(shape_variable_name)) +
+
+        theme_bw() +
+        theme(panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank())
+      plot_object$loading_plot<-loading_plot
+    }
   }
 
   if(plottype=="scoreloading"){
@@ -225,6 +265,7 @@ PCA_plots<-function(dataframe,
     }
 
     if(scale_scoreloading==T){
+      if(loadings_name==T){
     ## A PCA plot for PC1 and PC2
     scoreloading_plot<-ggplot(scores,
            aes(x=scores[,first_PC],
@@ -245,7 +286,7 @@ PCA_plots<-function(dataframe,
                    x=0, ## Starting x position of lines
                    y=0, ## Starting y position of lines
                    color="Grey") +  ## color of the line
-      geom_label(data=loadings,
+      geom_label_repel(data=loadings,
                     aes(x=loadings[,first_PC]*(max(abs(scores[,first_PC]))/max(abs(loadings[,first_PC]))),
                      y=loadings[,second_PC]*(max(abs(scores[,second_PC]))/max(abs(loadings[,second_PC]))),
                      label=rownames(loadings) ),   ## Add label
@@ -253,7 +294,7 @@ PCA_plots<-function(dataframe,
                  vjust="inward",
                  hjust="inward") +
       scale_y_continuous(name = paste("Score PC", second_PC) ,
-                         limits =1.01*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC]))),
+                         limits =1.1*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC]))),
                          sec.axis = sec_axis(trans=~./(max(abs(scores[,second_PC]))/max(abs(loadings[,second_PC]))),
                                              name =  paste("Loading PC", second_PC)  ,
                                              breaks=waiver()
@@ -278,8 +319,63 @@ PCA_plots<-function(dataframe,
       theme(panel.grid.major = element_blank(),  ## remove grid
             panel.grid.minor = element_blank())  ## remove grid
     plot_object$scoreloading_plot<-scoreloading_plot
+      }
+      if(loadings_name==F){
+        ## A PCA plot for PC1 and PC2
+        scoreloading_plot<-ggplot(scores,
+                                  aes(x=scores[,first_PC],
+                                      y=scores[,second_PC]
+                                  )) +   ## different time different color
+          geom_point(
+            aes(size = size_variable,
+                shape=shape_variable,
+                color=color_variable)) +  ## Different replicate different shape
+          geom_vline(xintercept = 0,
+                     linetype=2) +
+          geom_hline(yintercept = 0,
+                     linetype=2)  +
+          geom_segment(data=loadings,
+                       aes(xend=loadings[,first_PC]*(max(abs(scores[,first_PC]))/max(abs(loadings[,first_PC]))),  ## x positions dots to be connected (a vector)
+                           yend=loadings[,second_PC]*(max(abs(scores[,second_PC]))/max(abs(loadings[,second_PC])))
+                       ), ## y positions dots to be connected (a vector)
+                       x=0, ## Starting x position of lines
+                       y=0, ## Starting y position of lines
+                       color="Grey") +  ## color of the line
+
+          scale_y_continuous(name = paste("Score PC", second_PC) ,
+                             limits =1.1*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC]))),
+                             sec.axis = sec_axis(trans=~./(max(abs(scores[,second_PC]))/max(abs(loadings[,second_PC]))),
+                                                 name =  paste("Loading PC", second_PC)  ,
+                                                 breaks=waiver()
+                                                 #              breaks =seq(-max(abs(loadings[,second_PC])),max(abs(loadings[,second_PC])),10)
+                             )
+          ) +
+          scale_x_continuous(name = paste("Score PC", first_PC),
+                             limits =1.01*c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC]))),
+                             sec.axis = sec_axis(trans=~./(max(abs(scores[,first_PC]))/max(abs(loadings[,first_PC]))),
+                                                 name =  paste("Loading PC", first_PC) ,
+                                                 breaks=waiver()
+                                                 #breaks =seq(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))
+                             )
+          ) +
+
+
+          scale_color_discrete(name = paste(color_variable_name)) +
+          scale_size_continuous(name = paste(size_variable_name)) +
+          scale_shape_discrete(name = paste(shape_variable_name)) +
+
+          theme_bw() +
+          theme(panel.grid.major = element_blank(),  ## remove grid
+                panel.grid.minor = element_blank())  ## remove grid
+        plot_object$scoreloading_plot<-scoreloading_plot
+      }
+
+
+
+
     }
     if(scale_scoreloading==F){
+      if(loadings_name==T){
       scoreloading_plot<-ggplot(scores,
                                 aes(x=scores[,first_PC],
                                     y=scores[,second_PC]
@@ -323,7 +419,51 @@ PCA_plots<-function(dataframe,
               panel.grid.minor = element_blank())  ## remove grid
       plot_object$scoreloading_plot<-scoreloading_plot
 
+      }
+
+
+    if(loadings_name==F){
+      scoreloading_plot<-ggplot(scores,
+                                aes(x=scores[,first_PC],
+                                    y=scores[,second_PC]
+                                )) +   ## different time different color
+        geom_point(
+          aes(size = size_variable,
+              shape=shape_variable,
+              color=color_variable)) +  ## Different replicate different shape
+        geom_vline(xintercept = 0,
+                   linetype=2) +
+        geom_hline(yintercept = 0,
+                   linetype=2)  +
+        geom_segment(data=loadings,
+                     aes(xend=loadings[,first_PC],  ## x positions dots to be connected (a vector)
+                         yend=loadings[,second_PC]
+                     ), ## y positions dots to be connected (a vector)
+                     x=0, ## Starting x position of lines
+                     y=0, ## Starting y position of lines
+                     color="Grey") +  ## color of the line
+
+        scale_y_continuous(name = paste("Score PC", second_PC) ,
+                           limits =1.01*c(-max(abs(scores[,second_PC])),max(abs(scores[,second_PC])))
+        ) +
+        scale_x_continuous(name = paste("Score PC", first_PC),
+                           limits =1.01*c(-max(abs(scores[,first_PC])),max(abs(scores[,first_PC])))
+        ) +
+
+
+        scale_color_discrete(name = paste(color_variable_name)) +
+        scale_size_continuous(name = paste(size_variable_name)) +
+        scale_shape_discrete(name = paste(shape_variable_name)) +
+
+        theme_bw() +
+        theme(panel.grid.major = element_blank(),  ## remove grid
+              panel.grid.minor = element_blank())  ## remove grid
+      plot_object$scoreloading_plot<-scoreloading_plot
+
     }
+  }
+
+
 
 
 
