@@ -11,6 +11,7 @@ PCA_plots(
   pc_num = 5,
   scale = T,
   center = T,
+  eigen_loading = "loading",
   rotate = "none",
   size_variable = NULL,
   size_variable_name = NULL,
@@ -21,7 +22,9 @@ PCA_plots(
   scale_scoreloading = T,
   first_PC = 1,
   second_PC = 2,
-  loadings_name = T
+  loadings_name = T,
+  loadings_cutvalue = NULL,
+  loadings_cutpercent = NULL
 )
 }
 \arguments{
@@ -37,7 +40,33 @@ PCA_plots(
 
 \item{center}{true by defaule}
 
+\item{eigen_loading}{If you want to show loading or scale it to eigevalues}
+
 \item{rotate}{"none", "varimax", "quartimax", "promax", "oblimin", "simplimax", and "cluster"}
+
+\item{size_variable}{numeric variable that you want to plot in different size of points}
+
+\item{size_variable_name}{the size variable names}
+
+\item{color_variable}{The categorical variable that you want to color different groups}
+
+\item{color_variable_name}{The name of the color variable}
+
+\item{shape_variable_name}{The names of the shape variables.}
+
+\item{scale_scoreloading}{If I want to scale loadings to the same scale of scores or not, default is T}
+
+\item{first_PC}{The first PC}
+
+\item{second_PC}{The second PC}
+
+\item{loadings_name}{IF I show the loadings_names or not, default T}
+
+\item{loadings_cutvalue}{Below what value the loading names are not shown}
+
+\item{loadings_cutpercent}{Below how many percentage of the max loading the loading name is not shown}
+
+\item{shape_variale}{The categorical variables that you want different group to have}
 }
 \value{
 A PCA plot

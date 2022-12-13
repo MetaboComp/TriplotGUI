@@ -4,17 +4,31 @@
 \alias{makeCorr}
 \title{Convenience function for normal correlation of data with TriPlotObject scores}
 \usage{
-makeCorr(TPObject, corrData, use = "pairwise", method = "spearman")
+makeCorr(
+  TPObject,
+  corrData,
+  use = "pairwise",
+  method = "spearman",
+  allowcategorical = F,
+  patial = F,
+  confounder = NULL
+)
 }
 \arguments{
 \item{TPObject}{A TriPlotObject}
 
-\item{corrData}{Data to correlate to the TPO scores; observations in rows and variables in columns. Ensure that observations (rows) match between TPO scores and correlation data.}
+\item{corrData}{Could be dataframe or matrix; Data to correlate to the TPO scores; observations in rows and variables in columns. Ensure that observations (rows) match between TPO scores and correlation data.}
 
 \item{use}{See ?cor documentation (defaults to 'pairwise'). An optional character string giving a method for computing covariances in the presence of missing values.
 This must be (an abbreviation of) one of the strings "everything", "all.obs", "complete.obs", "na.or.complete", or "pairwise.complete.obs".}
 
 \item{method}{"pearson"(default),"spearman" or "kendall"}
+
+\item{allowcategorical}{T or F allow categorical or not}
+
+\item{patial}{T or F. Do partial correlation or not}
+
+\item{confounder}{Potential confounder}
 }
 \value{
 A correlation matrix
