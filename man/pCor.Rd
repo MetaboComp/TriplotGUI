@@ -5,7 +5,7 @@
 \title{This function aims to construct one more flexible pcor()
 All X, Y C should be numeric}
 \usage{
-pCor(X, Y, C, cor_method = c("pearson", "kendall", "spearman"))
+pCor(X, Y, C, cor_method = c("pearson", "kendall", "spearman"), allnumeric = T)
 }
 \arguments{
 \item{X}{A data frame of X variables (All variables needs to be numeric)}
@@ -15,6 +15,8 @@ pCor(X, Y, C, cor_method = c("pearson", "kendall", "spearman"))
 \item{C}{A data frame of covariates (All variables needs to be numeric)}
 
 \item{cor_method}{from cor()}
+
+\item{allnumeric}{don't know why it has problem logical if True all variables are transformed to numeric}
 }
 \value{
 A vector with adjusted partial correlations

@@ -277,7 +277,7 @@ PCA_plots<-function(dataframe,
    loading_plot<-ggplot(loadings,
           aes(x=loadings[,first_PC],
               y=loadings [,second_PC] ))+
-     geom_point() +
+     #geom_point() +
      geom_segment(aes(xend=loadings[,first_PC],  ## x positions dots to be connected (a vector)
                       yend=loadings [,second_PC]), ## y positions dots to be connected (a vector)
                   x=0, ## Starting x position of lines
@@ -314,7 +314,7 @@ PCA_plots<-function(dataframe,
       loading_plot<-ggplot(loadings,
                            aes(x=loadings[,first_PC],
                                y=loadings [,second_PC] ))+
-        geom_point() +
+        #geom_point() +
         geom_segment(aes(xend=loadings[,first_PC],  ## x positions dots to be connected (a vector)
                          yend=loadings [,second_PC]), ## y positions dots to be connected (a vector)
                      x=0, ## Starting x position of lines

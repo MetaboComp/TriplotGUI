@@ -10,7 +10,7 @@ normal_scan(
   figure = F,
   p_threshold = 0.05,
   perform_transform = c("none", "log_specfic", "log_all", "scale_specific", "scale_all",
-    "squareroot_all", "squareroot_specific")
+    "squareroot_all", "squareroot_specific", "cubicroot_all", "cubicroot_specific")
 )
 }
 \arguments{

@@ -16,11 +16,11 @@ makeTPO <- function(scores,
   cat('\nMaking TriPlotObject (TPO)')
   cat('\n--------------------------')
   a<-menu(c("Yes","No"),
-          graphics = T,
+          graphics = F,
           "Do you have scores as observations in rows and components in columns?")
   if(a==2){stop("Please make rows as observations,column as components")}
   b<-menu(c("Yes","No"),
-          graphics = T,
+          graphics = F,
           "Do you have scores as observations in rows and components in columns?")
   if(b==2){stop("Please make rows as variables, column as components")}
 

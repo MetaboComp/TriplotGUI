@@ -4,6 +4,7 @@
 #' @param Y  A dataframe ofY variables (needs to be numeric)
 #' @param C A data frame of covariates (All variables needs to be numeric)
 #' @param cor_method from cor()
+#' @param allnumeric don't know why it has problem logical if True all variables are transformed to numeric
 #' @export
 #' @return A vector with adjusted partial correlations
 #'
@@ -20,8 +21,10 @@
 pCor <- function(X,
                  Y,
                  C,
-                 cor_method=c("pearson", "kendall", "spearman")
-) {
+                 cor_method=c("pearson", "kendall", "spearman"),
+                 allnumeric=T
+) {  result<-list()
+
   if(missing(X)){stop("\n Must have a X")}
   if(missing(Y)){Y=X
   cat("\n You don't have a Y, then we let Y = X")
@@ -30,13 +33,18 @@ pCor <- function(X,
   if(cor_method!="pearson"&cor_method!="kendall"&cor_method!="spearman"){
     stop("\n Wrong method, you idiot!")
   }
+
+  if(allnumeric){
   cat("\n In your X, Y and C, if you have variables that are non-numeric, they are transformed to numeric autonomatically.\n")
   cat("\n Be careful if you want this to happen or not")
+
+  }
   if(is.null(dim(X))){
     Xframe=data.frame(X)
     rownamesX<-rownames(Xframe)
     colnamesX<-colnames(Xframe)
-    X=as.numeric(X)
+    if(allnumeric){
+      X=as.numeric(X)}
     X<-data.frame(X)
     colnames(X)<-colnamesX
     rownames(X)<-rownamesX
@@ -44,9 +52,11 @@ pCor <- function(X,
   if(!is.null(dim(X))){
     colnamesX<-colnames(X)
     rownamesX<-rownames(X)
-    for(i in 1:ncol(X))
-    {X[,i]=as.numeric(X[,i])
+    if(allnumeric){
+    for(i in 1:ncol(X)){
+      X[,i]=as.numeric(X[,i])
 
+    }
     }
     X=data.frame(X)
     colnames(X)<-colnamesX
@@ -59,7 +69,9 @@ pCor <- function(X,
       Cframe=data.frame(C)
       rownamesC<-rownames(Cframe)
       colnamesC<-colnames(Cframe)
+      if(allnumeric){
       C=as.numeric(C)
+      }
       C=data.frame(C)
       colnames(C)<-colnamesC
       rownames(C)<-rownamesC
@@ -71,9 +83,11 @@ pCor <- function(X,
     if(!is.null(dim(C))){
       colnamesC<-colnames(C)
       rownamesC<-rownames(C)
+      if(allnumeric){
       for(i in 1:ncol(C))
       {C[,i]=as.numeric(C[,i])
 
+      }
       }
       C=data.frame(C)
       colnames(C)<-colnamesC
@@ -86,16 +100,19 @@ pCor <- function(X,
     Yframe=data.frame(Y)
     colnamesY<-colnames(Yframe)
     rownamesY<-rownames(Yframe)
-    Y=as.numeric(Y)
+    if(allnumeric){
+    Y=as.numeric(Y)}
     Y=data.frame(Y)
     colnames(Y)<-colnamesY
     rownames(Y)<-rownamesY
   }else{
     colnamesY<-colnames(Y)
     rownamesY<-rownames(Y)
+    if(allnumeric){
     for(i in 1:ncol(Y))
     {Y[,i]=as.numeric(Y[,i])
 
+    }
     }
     Y=data.frame(Y)
     colnames(Y)<-colnamesY
@@ -108,7 +125,9 @@ pCor <- function(X,
     }
 
 
-  result<-list()
+
+
+
   cor_estimate=matrix(0,ncol(X),ncol(Y))
   cor_pvalue=matrix(0,ncol(X),ncol(Y))
   if(!missing(C)){
@@ -116,6 +135,7 @@ pCor <- function(X,
 
     for (i in 1:ncol(X)){
       for(j in 1:ncol(Y)){
+        if(is.numeric(Y[,j])){
       glmX <- glm(formula = as.formula(paste(colnames(X)[i],'~', paste(colnames(C),collapse="+"))),
                   data=data)
 
@@ -126,6 +146,17 @@ pCor <- function(X,
                          method=cor_method)
       cor_estimate[i,j] <-cor_test$estimate
       cor_pvalue[i,j] <- cor_test$p.value
+
+        }
+        if(is.factor(Y[,j])){
+          modelXY<-lm(formula = as.formula(paste(colnames(X)[i],'~',paste(colnames(Y)[j]),  ## the denpendent variable place must be numeric, the independent varible place not necessary
+                                                  '+', paste(colnames(C),collapse="+"))),
+                       data=data)
+          anovaXY<-anova(modelXY)
+          rsqXY<-anovaXY[1,2]/sum(anovaXY[,2])
+          cor_estimate[i,j]<-sqrt(rsqXY)
+          cor_pvalue[i,j] <- anovaXY[1,5]
+        }
       }
     }
     result$C<-C
@@ -135,11 +166,24 @@ pCor <- function(X,
 
     for (i in 1:ncol(X)){
       for(j in 1:ncol(Y)){
-
+     if(is.numeric(Y[,j])){
       cor_test<-cor.test(X[,i],Y[,j],
                          method=cor_method)
       cor_estimate[i,j]  <-cor_test$estimate
       cor_pvalue[i,j]  <- cor_test$p.value
+      }
+
+      if(is.factor(Y[,j])){
+        modelXY<-lm(formula = as.formula(paste(colnames(X)[i],
+                                               '~',colnames(Y)[j])),  ## the denpendent variable place must be numeric, the independent varible place not necessary
+                    data=data)
+
+        anovaXY<-anova(modelXY)
+        rsqXY<-anovaXY[1,2]/sum(anovaXY[,2])
+
+        cor_estimate[i,j]<-sqrt(rsqXY)
+        cor_pvalue[i,j] <- anovaXY[1,5]
+      }
       }
     }
     cor_pvalue<-data.frame(cor_pvalue)

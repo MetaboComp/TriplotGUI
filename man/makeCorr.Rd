@@ -10,7 +10,7 @@ makeCorr(
   use = "pairwise",
   method = "spearman",
   allowcategorical = F,
-  patial = F,
+  partial = F,
   confounder = NULL
 )
 }
@@ -26,7 +26,7 @@ This must be (an abbreviation of) one of the strings "everything", "all.obs", "c
 
 \item{allowcategorical}{T or F allow categorical or not}
 
-\item{patial}{T or F. Do partial correlation or not}
+\item{partial}{T or F. Do partial correlation or not}
 
 \item{confounder}{Potential confounder}
 }

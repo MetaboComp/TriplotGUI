@@ -10,7 +10,8 @@
 #' @return A vector with adjusted partial correlations
 #'
 
-
+### which transformation gives average p value (rank from good to bad according to p value),
+### table, (log, squareroot), cuR, exp, 1/x,
 normal_scan<-function(Dataframe,
                       Group=NULL,
                       figure=F,
@@ -21,13 +22,18 @@ normal_scan<-function(Dataframe,
                                           "scale_specific",
                                           "scale_all",
                                           "squareroot_all",
-                                          "squareroot_specific")
+                                          "squareroot_specific",
+                                          "cubicroot_all",
+                                          "cubicroot_specific")
                       ){
   result<-list()
-
+  if(missing (perform_transform)){
+    perform_transform="none"
+    }
 
   if(!perform_transform%in%c("none","log_specfic","log_all","scale_specific",
-                             "scale_all","squareroot_all","squareroot_specific")){
+                             "scale_all","squareroot_all","squareroot_specific","cubicroot_all",
+                             "cubicroot_specific")){
     stop("This type of transformation not supported")}
 
 
@@ -88,8 +94,10 @@ normal_scan<-function(Dataframe,
     }
     cat("\n Out of", ncol(Dataframe),"variables in your original data,",
         length(approved_shapiro),"variables pass the Shapiro test that checks normality,\n",
-        length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality,\n")
+        length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality.\n")
     result$originaldata<-Dataframe
+    result$padj_shapiro<- padj_shapiro
+    result$padj_kolmogorov<- padj_kolmogorov
     result$approved_shapiro<-approved_shapiro
     result$approved_kolmogorov<-approved_kolmogorov
   }
@@ -107,10 +115,10 @@ normal_scan<-function(Dataframe,
     pvalue_kolmogorov<-matrix(0,
                               nrow=ncol(Dataframe),
                               ncol=length(unique(Group)))
-    for(j in 1:length(unique(Group))){
+    for(j in 1:length(unique(Group))){   ## j is how many groups
       #ii<-1
       #i<-1
-      for( i in 1:ncol(Dataframe)){
+      for( i in 1:ncol(Dataframe)){  ## i is row
       #while(i<ncol(Dataframe)){
         #i<-ii
 
@@ -148,11 +156,12 @@ normal_scan<-function(Dataframe,
     }
     cat("\n Out of", ncol(Dataframe),"variables in your original data,",
         length(approved_shapiro),"variables pass the Shapiro test that checks normality in all groups,\n",
-        length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality in all groups,\n")
+        length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality in all groups.\n")
   #  if(length(approved_shapiro)==ncol(Dataframe)){
   #    perform_transform=="none"
   #  }
-
+    result$padj_shapiro<- padj_shapiro
+    result$padj_kolmogorov<- padj_kolmogorov
     result$originaldata<-Dataframe
     result$approved_shapiro<-approved_shapiro
     result$approved_kolmogorov<-approved_kolmogorov
@@ -170,15 +179,41 @@ normal_scan<-function(Dataframe,
     ##############################################
     ################perform transform
     if(perform_transform=="log_all"){
+      for ( i in 1:ncol(Dataframe)){
+        min_value<-min(Dataframe[Dataframe[,i]!=0,i])
+        for (j in 1:nrow(Dataframe)){
+          if(Dataframe[j,i]==0){
+            Dataframe[j,i]=min_value*0.001
+            }
+        }
+      }
+
+
       Dataframe<-log(Dataframe)
       result$transformeddata<-Dataframe
+
+
     } else if(perform_transform=="scale_all"){
       Dataframe<-scale(Dataframe)
       result$transformeddata<-Dataframe
     } else if(perform_transform=="squareroot_all"){
       Dataframe<-sqrt(Dataframe)
       result$transformeddata<-Dataframe
+    } else if(perform_transform=="cubicroot_all"){
+      library(kader)
+      Dataframe<-(Dataframe)^(1/3)
+      result$transformeddata<-Dataframe
     } else if(perform_transform=="log_specific"){
+
+      for ( i in 1:ncol(Dataframe)){
+        min_value<-min(Dataframe[Dataframe[,i]!=0,i])
+        for (j in 1:nrow(Dataframe)){
+          if(Dataframe[j,i]==0){
+            Dataframe[j,i]=min_value*0.001
+          }
+        }
+      }
+
       for(i in nrow(Dataframe)){
         if(!colnames%in%approved_shapiro&!colnames%in%approved_kolmogorov){  ###if it did not pass neither of the test
         Dataframe[,i]<-log(Dataframe[,i])
@@ -196,6 +231,13 @@ normal_scan<-function(Dataframe,
       for(i in nrow(Dataframe)){
         if(!colnames%in%approved_shapiro&!colnames%in%approved_kolmogorov){
           Dataframe[,i]<-sqrt(Dataframe[,i])
+        }
+      }
+      result$transformeddata<-Dataframe
+    }else if(perform_transform=="squareroot_specific"){
+      for(i in nrow(Dataframe)){
+        if(!colnames%in%approved_shapiro&!colnames%in%approved_kolmogorov){
+          Dataframe[,i]<-(Dataframe[,i])^(1/3)
         }
       }
       result$transformeddata<-Dataframe
@@ -238,9 +280,11 @@ normal_scan<-function(Dataframe,
       }
          cat("\n Out of", ncol(Dataframe),"variables in the transformed data,",
         length(approved_shapiro),"variables pass the Shapiro test that checks normality,\n",
-        length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality,\n")
-      result$approved_shapiro<-approved_shapiro
-      result$approved_kolmogorov<-approved_kolmogorov
+        length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality.\n")
+         result$transformed_padj_shapiro<- padj_shapiro
+         result$transformed_padj_kolmogorov<- padj_kolmogorov
+      result$transformed_approved_shapiro<-approved_shapiro
+      result$transformed_approved_kolmogorov<-approved_kolmogorov
     }
 
 
@@ -289,9 +333,11 @@ normal_scan<-function(Dataframe,
       }
       cat("\n Out of", ncol(Dataframe),"variables in the transformed data,",
           length(approved_shapiro),"variables pass the Shapiro test that checks normality in all groups,\n",
-          length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality in all groups,\n")
-      result$approved_shapiro<-approved_shapiro
-      result$approved_kolmogorov<-approved_kolmogorov
+          length(approved_kolmogorov),"variables pass the Kolmogorov- Smirnov test that checks normality in all groups.\n")
+      result$transformed_padj_shapiro<- padj_shapiro
+      result$transformed_padj_kolmogorov<- padj_kolmogorov
+      result$transformed_approved_shapiro<-approved_shapiro
+      result$transformed_approved_kolmogorov<-approved_kolmogorov
     }
     #############################################################################################
     ###################################################################????????
@@ -334,7 +380,7 @@ normal_scan<-function(Dataframe,
   result$figure<-p
   }
 
-
+result$Group<-Group
 return(result)
 
 
