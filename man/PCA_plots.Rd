@@ -7,7 +7,7 @@
 PCA_plots(
   dataframe,
   plottype = c("scree", "score", "loading", "scoreloading"),
-  pc_type = c("prcomp", "principle"),
+  pc_type = c("prcomp", "principal"),
   pc_num = 5,
   scale = T,
   center = T,

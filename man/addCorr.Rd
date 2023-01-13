@@ -19,4 +19,6 @@ Add correlation matrix to TriPlotObject
 }
 \examples{
 See example under triPlot()
+
+
 }

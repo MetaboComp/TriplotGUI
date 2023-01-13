@@ -4,14 +4,12 @@
 \alias{addRisk}
 \title{Add risk estimates to TriPlotObject}
 \usage{
-addRisk(TPObject, Risk, name = NULL)
+addRisk(TPObject, Risk)
 }
 \arguments{
 \item{TPObject}{A TriPlotObject}
 
-\item{Risk}{A risk estimation matrix with components in rows and estimates, margin-of-error and (optionally) p-values in columns. The margin-of-error corresponds to half the width of the confidence interval (i.e. z * se).}
-
-\item{name}{The name of the "risk"}
+\item{Risk}{A list of risk risk estimation matrix with components in rows and estimates, margin-of-error and (optionally) p-values in columns. The margin-of-error corresponds to half the width of the confidence interval (i.e. z * se).}
 }
 \value{
 A TriPlotObject with added risk estimates

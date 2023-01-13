@@ -5,7 +5,7 @@
 #' @param colorScheme Which color scheme to use for heatmap: 'MO' (mixOmics original; default) or high-contrast 'BWR' (Blue/white/red)
 #' @param scaleRisk Whether to scale value of risks to max of correlations (defaults to TRUE). This makes risk estimate scale comparable to correlations in the heatmap.
 #' @param cluster Whether to cluster x and/or y axes (defaults to 'none'). See ?mixOmics::cim for details.
-#'
+#' @param combine_corrrisk logical, put correlation and risk in one plot or not
 #' @return Detailed information and heatmap of correlations and risks in TriPlotObject
 #' @export
 #'
@@ -13,9 +13,10 @@
 #' See example under triPlot()
 checkTPO <- function(TPObject,
                      heatmap = TRUE,
-                     colorScheme = 'MO',
+                     colorScheme = 'BWR',
                      scaleRisk = TRUE,
-                     cluster = 'none') {
+                     cluster = 'none',
+                     combine_corrrisk=T) {
   nObs <- TPObject$nObs
   nVar <- TPObject$nVar
   nComp <- TPObject$nComp
@@ -47,7 +48,7 @@ checkTPO <- function(TPObject,
         'components.')
 
   } else
-    stop('\nMismatch between $nVar and nrow(loadings)')
+    {stop('\nMismatch between $nVar and nrow(loadings)')}
 
   cat('\n\nTPO has', TPObject$nCorr, 'attached correlations:')
 
@@ -77,7 +78,6 @@ checkTPO <- function(TPObject,
     }
     if (nRisk > 0) {
       riskMatrix <- TPObject$riskMatrix
-      if (!is.null(testMatrix)) {
         if (scaleRisk) {
           riskMatrix <-   ###Whether to scale value of risks to max of correlations
             max(abs(testMatrix)) / max(abs(riskMatrix)) * riskMatrix
@@ -86,17 +86,112 @@ checkTPO <- function(TPObject,
           ##Then this max(abs(testMatrix)) / max(abs(riskMatrix)) is no more than 0.9/20
           ##When it multiplies risk, it is scale to the level that no value is beyond (-0.9,0.9)
         }
-        testMatrix <- rbind(testMatrix, riskMatrix)
-
-      } else {
-        testMatrix <- riskMatrix
-      }
     }
-    ##This function generates color-coded Clustered Image Maps (CIMs) ("heat maps") to represent "high-dimensional" data sets.
-    mixOmics::cim(t(testMatrix),
-                  cluster = cluster,
-                  color = color)
-  } else {
-    cat("\n\nNo heatmap produced since no correlations or risks were found in the TPObject.")
+    library(gplots)
+    if(is.null(testMatrix)&is.null(riskMatrix)){
+      cat("\n\nNo heatmap produced since no correlations or risks were found in the TPObject.")
+    } else if (!is.null(testMatrix)&is.null(riskMatrix)){
+
+      heatmap.2(t(testMatrix),
+                main="Correlation Heatmap",
+                Rowv=F,
+                Colv=F,
+
+                 margins = c(10, 20), ##  margins for row and column name
+                trace="none",
+                col=color,    ## color
+                na.color="gray80", ## color of na
+                cexCol = 1,      ## size of the font in column
+                cexRow = 1,      ## size of the font in rows
+                xlab="variables",
+                ylab="PCs",
+                srtCol = 45,
+                dendrogram="none",
+                density.info="none"
+        )
+
+
+    }else if (is.null(testMatrix)&!is.null(riskMatrix)){
+
+      heatmap.2(t(riskMatrix),
+                main="Risk Heatmap",
+                margins = c(10, 20), ##  margins for row and column name
+                trace="none",
+                Rowv=F,
+                Colv=F,
+                col=color,    ## color
+                na.color="gray80", ## color of na
+                cexCol = 1,      ## size of the font in column
+                cexRow = 1,      ## size of the font in rows
+                xlab="variables",
+                ylab="PCs",
+                srtCol = 45,
+                dendrogram="none",
+                density.info="none"
+      )
+
+    }else if (!is.null(testMatrix)&!is.null(riskMatrix)){
+
+      if(combine_corrrisk==F){
+      heatmap.2(t(testMatrix),
+                main="Correlation Heatmap",
+                margins = c(10, 20), ##  margins for row and column name
+                trace="none",
+                Rowv=F,
+                Colv=F,
+                col=color,    ## color
+                na.color="gray80", ## color of na
+                cexCol = 1,      ## size of the font in column
+                cexRow = 1,      ## size of the font in rows
+                xlab="variables",
+                ylab="PCs",
+                srtCol = 45,
+                dendrogram="none",
+                density.info="none"
+      )
+
+
+      heatmap.2(t(riskMatrix),
+                main="Risk Heatmap",
+                margins = c(10, 20), ##  margins for row and column name
+                trace="none",
+                Rowv=F,
+                Colv=F,
+                col=color,    ## color
+                na.color="gray80", ## color of na
+                cexCol = 1,      ## size of the font in column
+                cexRow = 1,      ## size of the font in rows
+                xlab="variables",
+                ylab="PCs",
+                srtCol = 45,
+                dendrogram="none",
+                density.info="none",
+                key=F
+      )
+      }else {
+        combined_matrix<-rbind(testMatrix,riskMatrix)
+        heatmap.2(t(combined_matrix),
+                  main="Correlation and Risk Heatmap",
+                  margins = c(10, 20), ##  margins for row and column name
+                  trace="none",
+                  Rowv=F,
+                  Colv=F,
+                  col=color,    ## color
+                  na.color="gray80", ## color of na
+                  cexCol = 1,      ## size of the font in column
+                  cexRow = 1,      ## size of the font in rows
+                  xlab="variables",
+                  ylab="PCs",
+                  srtCol = 45,
+                  dendrogram="none",
+                  density.info="none",
+
+        )
+      }
+
   }
+    ##This function generates color-coded Clustered Image Maps (CIMs) ("heat maps") to represent "high-dimensional" data sets.
+
+  }
+  dev.off()
 }

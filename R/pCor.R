@@ -201,8 +201,8 @@ pCor <- function(X,
   rownames(cor_pvalue)<-colnames(X)
   colnames(cor_estimate)<-colnames(Y)
   colnames(cor_pvalue)<-colnames(Y)
-  result$cor_estimate<-cor_estimate
-  result$cor_pvalue<-cor_pvalue
+  result$cor_estimate<-t(cor_estimate)
+  result$cor_pvalue<-t(cor_pvalue)
   result$Y<-Y
   result$X<-X
 

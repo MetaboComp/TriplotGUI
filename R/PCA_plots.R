@@ -30,7 +30,7 @@
 ## loading cut (number and threshold)
 PCA_plots<-function(dataframe,
                     plottype=c("scree","score","loading","scoreloading"),
-                    pc_type=c("prcomp","principle"),
+                    pc_type=c("prcomp","principal"),
                     pc_num=5,
                     scale=T,
                     center=T,
@@ -46,7 +46,7 @@ PCA_plots<-function(dataframe,
                     first_PC=1,
                     second_PC=2,
                     loadings_name=T,
-                    loadings_cutvalue=NULL,
+                    loadings_cutvalue=NULL,  ### currently,  the loadings not in the range will be ignored instead of showing grey lines
                     loadings_cutpercent=NULL
 
 ){
