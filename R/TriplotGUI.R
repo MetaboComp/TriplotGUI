@@ -86,7 +86,7 @@ TriplotGUI <- function(TPObject,
 ) {
   library(ggplot2)
   library(ggpubr)
-
+  result<-list()
   ##one thing to not ice that when you increase the margin it shrinks the real images
   ##mai: A numerical vector of the form c(bottom, left, top, right) which gives the margin size specified in inches.
   ##mar: A numerical vector of the form c(bottom, left, top, right) which gives the number of lines of margin to be specified on the four sides of the plot. The default is c(5, 4, 4, 2) + 0.1
@@ -195,9 +195,7 @@ TriplotGUI <- function(TPObject,
     for(i in 1:length(loadnames)){
       if(!Loadsshow[i]){loadnames[i]=""}
     }
-    p1<-ggplot(loads,
-               aes(x=loads[,1],
-                   y=loads [,2] ))
+    p1<-ggplot()
     p2=p1+geom_vline(xintercept = 0,
                      linetype=2) +
       geom_hline(yintercept = 0,
@@ -410,9 +408,9 @@ p_scores<-p2
 
 
 
-    if(plotRisk==F){
-
-     p_Final
+    if(plotRisk==F|TPObject$nRisk==0){
+      result$triplot<-p_final
+     p_final
     }
 
 }
@@ -590,13 +588,13 @@ p_scores<-p2
        geom_hline(yintercept = 1,
                   linetype=2)  +
        scale_x_continuous(name = paste("PCA odds ratio for component", first_PC, "scores"),
-                          limits=c(1-rng_risk,1+rng_risk),
+                          limits=c(-rng_risk,rng_risk),
                           sec.axis =sec_axis(trans=~./1,
                                              name=paste("PCA odds ratio for component", first_PC, "scores")),
 
        )+
        scale_y_continuous(name = paste("PCA odds ratio for component", second_PC, "scores"),
-                          limits=c(1-rng_risk,1+rng_risk),
+                          limits=c(-rng_risk,rng_risk),
                           sec.axis =sec_axis(trans=~./1,
                                              name=paste("PCA odds ratio for component", second_PC, "scores")),
 
@@ -674,7 +672,7 @@ if(riskOR==T){
                             #ymax=(riskMatrix[,2]+riskSE[,2])*rng_loading/rng_risk,
 
   ),
-  height=2*riskSE[,2]*riskWhisker_percentage,
+  height=2*riskSE[,1]*riskWhisker_percentage,
   #position=position_dodge()
 
   )+
@@ -685,7 +683,7 @@ if(riskOR==T){
                       #ymax=(riskMatrix[,2]+riskSE[,2])*rng_loading/rng_risk,
 
     ),
-    width=2*riskSE[,1]*riskWhisker_percentage,
+    width=2*riskSE[,2]*riskWhisker_percentage,
     #position=position_dodge()
     )
 
@@ -699,7 +697,8 @@ risk_y_axis<-get_y_axis(p_risk)
 risk_xl_axis <- get_plot_component(p_risk, "xlab-b")
 risk_yl_axis <- get_plot_component(p_risk, "ylab-r")
 
-if(plotCorr==F){
+if(plotRisk==T|TPObject$nRisk>0){
+if(plotCorr==F|TPObject$nCorr==0){
   empty<-ggplot()+
     theme_minimal()+
     labs(x= "",y="")
@@ -722,6 +721,7 @@ if(plotCorr==F){
     rel_widths=c(0.9, 0.05, 0.05)
   )
   p_final
+  result$triplot<-p_final
 } else {
   empty<-ggplot()+
     theme_minimal()+
@@ -763,27 +763,28 @@ if(plotCorr==F){
     greedy=F
   )
   p_final
-
+  result$triplot<-p_final
+}
 }
 
 
 
 }
-result<-list()
 
-if(plotCorr){
+
+if(plotCorr==T&TPObject$nCorr>0){
   result$Correlation<-p_corr
 }
-if(plotRisk){
+if(plotRisk==T&TPObject$nRisk>0){
   result$Risk<-p_risk
 }
-if(plotScores){
+if(plotScores==T){
   result$Scores<-p_scores
 }
 if(plotLoads){
 result$PCA<-p_PCA
 }
-  result$triplot<-p_final
+
 return(result)
 
 }

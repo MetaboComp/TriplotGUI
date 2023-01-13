@@ -287,6 +287,7 @@ PCA_plots<-function(dataframe,
                     y=loadings[,second_PC],
                     label=rownames(loadings)),   ## Add label
                 size=2,
+                max.overlaps = Inf,
                 vjust="outward"
                 ) +    ## The label is adjusted outwarded
      geom_vline(xintercept = 0,
@@ -405,6 +406,7 @@ PCA_plots<-function(dataframe,
                                                                               abs(loadings[,second_PC]))),
                      label=rownames(loadings) ),   ## Add label
                  size=2,
+                 max.overlaps = Inf,
                  vjust="inward",
                  hjust="inward") +
       scale_y_continuous(name = paste("Score PC", second_PC,"(",round(100*variance[second_PC,1],2),"%) ") ,

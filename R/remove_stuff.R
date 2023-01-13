@@ -54,7 +54,7 @@ removestuff <- function(TPObject,
   } else {
 
     TPObject$nCorr <- TPObject$nCorr - length(remove_corr)
-    TPObject$corrMatrix <- TPObject$corrMatrix[-which(remove_corr%in%c("all",rownames(TPObject$corrMatrix))),]
+    TPObject$corrMatrix <- TPObject$corrMatrix[-which(remove_corr==rownames(TPObject$corrMatrix)),]
   }
     }else{
       TPObject$nCorr <- TPObject$nCorr - length(remove_corr)
@@ -74,9 +74,9 @@ removestuff <- function(TPObject,
     TPObject$riskP <- NULL
   } else {
     TPObject$nRisk <- TPObject$nRisk - length(remove_risk)
-    TPObject$riskMatrix <- TPObject$riskMatrix[-which(remove_risk%in%c("all",rownames(TPObject$riskMatrix))),]
-    TPObject$riskSE <- TPObject$riskSE[-which(remove_risk%in%c("all",rownames(TPObject$riskMatrix))),]
-    TPObject$riskP <- TPObject$riskp[-which(remove_risk%in%c("all",rownames(TPObject$riskMatrix))),]
+    TPObject$riskMatrix <- TPObject$riskMatrix[-which(remove_risk==rownames(TPObject$riskMatrix)),]
+    TPObject$riskSE <- TPObject$riskSE[-which(remove_risk==rownames(TPObject$riskSE)),]
+    TPObject$riskP <- TPObject$riskp[-which(remove_risk==rownames(TPObject$riskP)),]
   }
   }else{
     TPObject$nRisk <- TPObject$nRisk - length(remove_risk)
