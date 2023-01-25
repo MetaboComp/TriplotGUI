@@ -10,6 +10,9 @@
 rotate_around_xory<-function(Dataframe,
                              rotate_around_x=NULL,
                              rotate_around_y=NULL){
+  if(is.null(Dataframe)){
+    result<-NULL
+  }else{
   if(is.null(rotate_around_x)&is.null(rotate_around_y)){
     result=t(Dataframe)
   }
@@ -212,7 +215,7 @@ if(!is.null(rotate_around_x)&!is.null(rotate_around_y)){
 
 
 }
-
+  }
 
   return(result)
 }

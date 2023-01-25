@@ -77,7 +77,11 @@ checkTPO <- function(TPObject,
       testMatrix <- TPObject$corrMatrix   ##build matrix that has variables
     }
     if (nRisk > 0) {
+      riskMatrix <- TPObject$riskMatrix   ##build matrix that has variables
+    }
+    if (nRisk > 0&nCorr>0) {
       riskMatrix <- TPObject$riskMatrix
+      testMatrix <- TPObject$corrMatrix
         if (scaleRisk) {
           riskMatrix <-   ###Whether to scale value of risks to max of correlations
             max(abs(testMatrix)) / max(abs(riskMatrix)) * riskMatrix
@@ -88,9 +92,9 @@ checkTPO <- function(TPObject,
         }
     }
     library(gplots)
-    if(is.null(testMatrix)&is.null(riskMatrix)){
+    if(is.null(TPObject$corrMatrix)&is.null(TPObject$riskMatrix)){
       cat("\n\nNo heatmap produced since no correlations or risks were found in the TPObject.")
-    } else if (!is.null(testMatrix)&is.null(riskMatrix)){
+    } else if (!is.null(TPObject$corrMatrix)&is.null(TPObject$riskMatrix)){
 
       heatmap.2(t(testMatrix),
                 main="Correlation Heatmap",
@@ -111,7 +115,7 @@ checkTPO <- function(TPObject,
         )
 
 
-    }else if (is.null(testMatrix)&!is.null(riskMatrix)){
+    }else if (is.null(TPObject$corrMatrix)&!is.null(TPObject$riskMatrix)){
 
       heatmap.2(t(riskMatrix),
                 main="Risk Heatmap",
@@ -130,7 +134,7 @@ checkTPO <- function(TPObject,
                 density.info="none"
       )
 
-    }else if (!is.null(testMatrix)&!is.null(riskMatrix)){
+    }else if (!is.null(TPObject$corrMatrix)&!is.null(TPObject$riskMatrix)){
 
       if(combine_corrrisk==F){
       heatmap.2(t(testMatrix),
@@ -193,5 +197,5 @@ checkTPO <- function(TPObject,
     ##This function generates color-coded Clustered Image Maps (CIMs) ("heat maps") to represent "high-dimensional" data sets.
 
   }
-  dev.off()
+ # dev.off()
 }

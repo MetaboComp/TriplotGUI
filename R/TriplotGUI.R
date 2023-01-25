@@ -22,7 +22,7 @@
 #' @param plotRisk Whether to plot risk estimates (TRUE; default) or suppress them (FALSE)
 #' @param riskLim Plot range for risks
 #' @param plotScores Whether to plot scores (TRUE) or suppress them (FALSE; default)
-#' @param scoreLabels Whether to plot observation score labels (TRUE) or not (FALSE; default)
+###@param scoreLabels Whether to plot observation score labels (TRUE) or not (FALSE; default)
 #' @param size font size of the name of correlation and risk variables
 #' @return A triplot obtained using base R plotting.
 #' @export
@@ -77,10 +77,10 @@ TriplotGUI <- function(TPObject,
                     riskWhisker_percentage=0.1,  ## whisker length is how many percentage of confidence interval (This is only for the visualization purpose)
 
 
-                    riskOR=T,  ##Specify whether to antilog risk layer scale (useful for log:ed risk estimates)
+                    riskOR=T  ##Specify whether to antilog risk layer scale (useful for log:ed risk estimates)
 
                     ## Scores
-                    scoreLabels=FALSE  ##Whether to plot observation score labels (TRUE) or not (FALSE; default)
+                     # scoreLabels=FALSE  ##Whether to plot observation score labels (TRUE) or not (FALSE; default)
 
 
 ) {
@@ -784,7 +784,7 @@ if(plotScores==T){
 if(plotLoads){
 result$PCA<-p_PCA
 }
-
+result$TPObject<-TPObject
 return(result)
 
 }

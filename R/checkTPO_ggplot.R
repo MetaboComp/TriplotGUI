@@ -77,9 +77,16 @@ checkTPO_ggplot <- function(TPObject,
       testMatrix <- TPObject$corrMatrix   ##build matrix that has variables
       testMatrix<-rotate_around_xory(testMatrix,NULL,1)
     }
+    if (nRisk > 0) {
+      riskMatrix <- TPObject$riskMatrix
+      riskMatrix<-rotate_around_xory(riskMatrix,NULL,1)
+    }
     if (nRisk > 0& nCorr>0) {
       riskMatrix <- TPObject$riskMatrix
+      testMatrix <- TPObject$corrMatrix
       testMatrix<-rotate_around_xory(testMatrix,NULL,1)
+      riskMatrix<-rotate_around_xory(riskMatrix,NULL,1)
+
       if (scaleRisk) {
         riskMatrix <-   ###Whether to scale value of risks to max of correlations
           max(abs(testMatrix)) / max(abs(riskMatrix)) * riskMatrix
@@ -91,9 +98,9 @@ checkTPO_ggplot <- function(TPObject,
     }
     library(ggplot2)
     library(reshape2)
-    if(is.null(testMatrix)&is.null(riskMatrix)){
+    if(is.null(TPObject$corrMatrix )&is.null(TPObject$riskMatrix)){
       cat("\n\nNo heatmap produced since no correlations or risks were found in the TPObject.")
-    } else if (!is.null(testMatrix)&is.null(riskMatrix)){
+    } else if (!is.null(TPObject$corrMatrix )&is.null(TPObject$riskMatrix )){
       melt_testMatrix<-melt(t(testMatrix))
       colnames(melt_testMatrix)<-c("PCs","Variables","Values")
       p<-ggplot(
@@ -128,7 +135,7 @@ checkTPO_ggplot <- function(TPObject,
 
 
 
-    }else if (is.null(testMatrix)&!is.null(riskMatrix)){
+    }else if (is.null(TPObject$corrMatrix )&!is.null(TPObject$riskMatrix )){
       melt_riskMatrix<-melt(t(riskMatrix))
       colnames(melt_riskMatrix)<-c("PCs","Variables","Values")
       p<-ggplot(
@@ -162,7 +169,7 @@ checkTPO_ggplot <- function(TPObject,
         p
 
 
-    }else if (!is.null(testMatrix)&!is.null(riskMatrix)){
+    }else if (!is.null(TPObject$corrMatrix )&!is.null(TPObject$riskMatrix )){
       show_legend=T
       if(max(testMatrix)<=max(riskMatrix)&min(testMatrix)>=min(riskMatrix)){
         show_legend=F

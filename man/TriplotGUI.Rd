@@ -25,8 +25,7 @@ TriplotGUI(
   whichRisk = NULL,
   riskLim,
   riskWhisker_percentage = 0.1,
-  riskOR = T,
-  scoreLabels = FALSE
+  riskOR = T
 )
 }
 \arguments{
@@ -71,8 +70,6 @@ TriplotGUI(
 \item{riskWhisker_percentage}{default is 1/10 of the confidence interval}
 
 \item{riskOR}{Specify whether to antilog risk layer scale (useful for log:ed risk estimates)}
-
-\item{scoreLabels}{Whether to plot observation score labels (TRUE) or not (FALSE; default)}
 
 \item{size}{font size of the name of correlation and risk variables}
 }
