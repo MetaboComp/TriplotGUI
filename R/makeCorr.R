@@ -8,6 +8,7 @@
 #' @param allowcategorical T or F allow categorical or not
 #' @param partial T or F. Do partial correlation or not
 #' @param confounder Potential confounder
+#' @param hide_question if question is hiden or not
 #' @return A correlation matrix
 #' @export
 #'
@@ -20,18 +21,20 @@ makeCorr <- function(TPObject, ### scores
                      method='spearman',
                      allowcategorical=F,  ## when categorical variables are not allowed, one hot encoding
                      partial=F,
-                     confounder=NULL
+                     confounder=NULL,
+                     hide_question=F
                      ) {
   library(ppcor)
 
   # library(StatTools)
   cat('\nMaking correlation between TPO and corrData')
   cat('\n-------------------------------------------')
-
+  if(hide_question==F){
   a<-menu(c("Yes","No"),
           graphics = F,
           "Do you have same number of rows for both scores in TPOobject and corrData")
   if(a==2){stop("Please make number of rows for scores in TPO object and corrData the same")}
+  }
   if(nrow(corrData) != TPObject$nObs) {
     stop("Not same number of observations in TPO and corrData.")
   }
@@ -57,7 +60,8 @@ makeCorr <- function(TPObject, ### scores
     scores <- TPObject$scores
     cor <- TriplotGUI::pCor(scores,
                 corrData,    ##
-                cor_method = method)
+                cor_method = method,
+                allnumeric = F)
   }
 
 
@@ -66,14 +70,25 @@ makeCorr <- function(TPObject, ### scores
 
   if(allowcategorical==F&partial==T){
     corrData=onehotencoding(corrData)
-      if(!is.null(confounder)){
+      if(is.null(confounder)){
+
+        scores <- TPObject$scores
+        cor <- TriplotGUI::pCor(scores,    ##
+                                corrData,
+
+                                cor_method = method,
+                                allnumeric = F)
+
+      }else{
         confounder=onehotencoding(confounder)
+        scores <- TPObject$scores
+        cor <- TriplotGUI::pCor(scores,    ##
+                                corrData,
+                                confounder,
+                                cor_method = method,
+                                allnumeric = F)
+
       }
-    scores <- TPObject$scores
-    cor <- TriplotGUI::pCor(scores,    ##
-                corrData,
-                confounder,
-                cor_method = method)
 
 
     }
@@ -88,18 +103,25 @@ makeCorr <- function(TPObject, ### scores
                 corrData,    ##
 
                 cor_method = method,
-                allnumeric = F)
+                allnumeric = T)
 
   }
 
 
   if(allowcategorical==T&partial==T){
     scores <- TPObject$scores
+    if(is.null(confounder)){
+      cor <- TriplotGUI::pCor(scores,    ##
+                              corrData,
+                              cor_method = method,
+                              allnumeric = T)
+    }else{
     cor <- TriplotGUI::pCor(scores,    ##
                 corrData,
                 confounder,
                 cor_method = method,
-                allnumeric = F)
+                allnumeric = T)
+    }
   }
 
 

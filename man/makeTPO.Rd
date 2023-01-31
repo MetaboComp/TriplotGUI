@@ -5,7 +5,7 @@
 \title{Prepare TriPlotObject which memorize the matrix of scores, the matrix of loadings, number of observations and variables,
 number of components, number of associated correlations, number of associated risks}
 \usage{
-makeTPO(scores, loadings, compLimit)
+makeTPO(scores, loadings, compLimit, hide_question = F)
 }
 \arguments{
 \item{scores}{Scores have observations in rows and components (or factors) in columns}
@@ -13,6 +13,8 @@ makeTPO(scores, loadings, compLimit)
 \item{loadings}{Loadings have variables in rows and components (or factors) in columns}
 
 \item{compLimit}{Option limit to the number of component}
+
+\item{hide_question}{if question is hiden or not}
 }
 \value{
 A TriPlotObject

@@ -13,11 +13,15 @@ force_parttype <- function(Dataframe,
                        variables_names
                        ) {
 
-  if(is.vector(Dataframe)){
-    nam<-names(Dataframe)
+ # if(is.vector(Dataframe)){
+  #  nam<-names(Dataframe)
+  #  Dataframe<-as.data.frame(Dataframe)
+  #  colnames(Dataframe)<-nam
+  #}else{
+    nam<-colnames(Dataframe)
     Dataframe<-as.data.frame(Dataframe)
     colnames(Dataframe)<-nam
-  }
+  #}
   if(!is.data.frame(Dataframe)){
     stop("The input should be an dataframe")
   }
@@ -43,13 +47,27 @@ force_parttype <- function(Dataframe,
 
       }else if(class(Dataframe[,i])[1]%in%c("character")){
         if(colnames(Dataframe)[i]%in%variables_names){
-        a<-as.numeric(as.factor(Dataframe[,i]))
-        ss<-cbind(ss,a)
+          a<-as.numeric(as.factor(Dataframe[,i]))
+          ss<-cbind(ss,a)
         }else{
           a<-Dataframe[,i]
           ss<-cbind(ss,a)
         }
 
+      }else if(class(Dataframe[,i])[1]%in%c("tbl_df")){
+        if(colnames(Dataframe)[i]%in%variables_names){
+          kk<-as.data.frame(Dataframe[,i])[,1]
+          if(is.character(kk)){
+            a<-as.numeric(as.factor(kk))
+          }else{
+            a<-as.numeric(kk)
+          }
+
+          ss<-cbind(ss,a)
+        }else{
+          a<-Dataframe[,i]
+          ss<-cbind(ss,a)
+        }
       }
 
     }
@@ -71,6 +89,20 @@ force_parttype <- function(Dataframe,
           ss<-cbind(ss,a)
 
         }
+      }else if(class(Dataframe[,i])[1]%in%c("tbl_df")){
+        if(colnames(Dataframe)[i]%in%variables_names){
+          kk<-as.data.frame(Dataframe[,i])[,1]
+          if(is.character(kk)){
+            a<-as.factor(kk)
+          }else{
+            a<-as.factor(kk)
+          }
+
+          ss<-cbind(ss,a)
+        }else{
+          a<-Dataframe[,i]
+          ss<-cbind(ss,a)
+        }
       }
 
     }
@@ -79,7 +111,7 @@ force_parttype <- function(Dataframe,
   if(transform_part=="character"){
     for(i in 1:ncol(Dataframe)){
       if(colnames(Dataframe)[i]%in%variables_names){
-      a<-as.character(Dataframe[,i])
+      a<-as.character(as.data.frame(Dataframe[,i])[,1])
       ss<-cbind(ss,a)
 
       }else{

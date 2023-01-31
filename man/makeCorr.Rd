@@ -11,7 +11,8 @@ makeCorr(
   method = "spearman",
   allowcategorical = F,
   partial = F,
-  confounder = NULL
+  confounder = NULL,
+  hide_question = F
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ This must be (an abbreviation of) one of the strings "everything", "all.obs", "c
 \item{partial}{T or F. Do partial correlation or not}
 
 \item{confounder}{Potential confounder}
+
+\item{hide_question}{if question is hiden or not}
 }
 \value{
 A correlation matrix

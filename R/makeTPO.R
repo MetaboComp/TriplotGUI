@@ -4,7 +4,7 @@
 #' @param scores Scores have observations in rows and components (or factors) in columns
 #' @param loadings Loadings have variables in rows and components (or factors) in columns
 #' @param compLimit Option limit to the number of component
-#'
+#' @param hide_question if question is hiden or not
 #' @return A TriPlotObject
 #' @export
 #'
@@ -12,18 +12,21 @@
 #' See example under triPlot()
 makeTPO <- function(scores,
                     loadings,
-                    compLimit) {
+                    compLimit,
+                    hide_question=F) {
   cat('\nMaking TriPlotObject (TPO)')
   cat('\n--------------------------')
+  if(hide_question==F){
   a<-menu(c("Yes","No"),
           graphics = F,
           "Do you have scores as observations in rows and components in columns?")
+
   if(a==2){stop("Please make rows as observations,column as components")}
   b<-menu(c("Yes","No"),
           graphics = F,
           "Do you have scores as observations in rows and components in columns?")
   if(b==2){stop("Please make rows as variables, column as components")}
-
+  }
   if (ncol(scores)!=ncol(loadings)){
     stop("Scores and loadings should have same numbers of principle components")
     }

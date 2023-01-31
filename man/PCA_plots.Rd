@@ -24,7 +24,8 @@ PCA_plots(
   second_PC = 2,
   loadings_name = T,
   loadings_cutvalue = NULL,
-  loadings_cutpercent = NULL
+  loadings_cutpercent = NULL,
+  plot = T
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ PCA_plots(
 \item{loadings_cutvalue}{Below what value the loading names are not shown}
 
 \item{loadings_cutpercent}{Below how many percentage of the max loading the loading name is not shown}
+
+\item{plot}{plot everything or not}
 
 \item{shape_variale}{The categorical variables that you want different group to have}
 }

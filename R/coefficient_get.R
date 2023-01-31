@@ -44,10 +44,10 @@ coefficient_get <- function(TPObject,
 
   if(!is.null(pair)){
   if(length(unique(pair))==length(pair)){
-    stop("There must be pairs in the vairable pair")
+    stop("There must be pairs in the variable pair")
   }
     if(class(pair)!="factor"){
-      stop("If pair variable exsit, it must be presented as a factor variable")
+      stop("If pair variable exist, it must be presented as a factor variable")
     }
   }
 

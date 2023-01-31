@@ -545,7 +545,27 @@ p_scores<-p2
              axis.ticks.y = element_line(size=1,color='red'),
              axis.ticks.x = element_line(size=1,color='red'),
              plot.margin=unit(c(0.1,0.1,0.1,0.1), 'cm')
-             )
+             )+geom_errorbarh(aes(xmin=(exp(riskMatrix_coef[,1]-riskSE[,1])),#*rng_loading/rng_risk,
+                                  xmax=(exp(riskMatrix_coef[,1]+riskSE[,1])),#*rng_loading/rng_risk,
+                                  y=(riskMatrix[,2])#*rng_loading/rng_risk
+                                  #ymin=(riskMatrix[,2]-riskSE[,2])*rng_loading/rng_risk,
+                                  #ymax=(riskMatrix[,2]+riskSE[,2])*rng_loading/rng_risk,
+
+             ),
+             height=(exp(riskMatrix_coef[,1]+riskSE[,1])-exp(riskMatrix_coef[,1]-riskSE[,1]))*riskWhisker_percentage*rng_loading/rng_risk,
+             #position=position_dodge()
+
+             )+
+       geom_errorbar(aes(ymin=(exp(riskMatrix_coef[,2]-riskSE[,2])),#*rng_loading/rng_risk,
+                         ymax=(exp(riskMatrix_coef[,2]+riskSE[,2])),#*rng_loading/rng_risk,
+                         x=(riskMatrix[,1])#*rng_loading/rng_risk
+                         #ymin=(riskMatrix[,2]-riskSE[,2])*rng_loading/rng_risk,
+                         #ymax=(riskMatrix[,2]+riskSE[,2])*rng_loading/rng_risk,
+
+       ),
+       width=(exp(riskMatrix_coef[,2]+riskSE[,2])-exp(riskMatrix_coef[,2]-riskSE[,2]))*riskWhisker_percentage,#*rng_loading/rng_risk,
+       #position=position_dodge()
+       )
 
 
      p3<-p2+geom_point(aes(x=(riskMatrix[,1]-1)*rng_loading/rng_risk ,
@@ -583,9 +603,9 @@ p_scores<-p2
                        fontface = "italic",
                        vjust="outward"           ## The label is adjusted outwarded
        )+
-       geom_vline(xintercept = 1,
+       geom_vline(xintercept = 0,
                   linetype=2) +
-       geom_hline(yintercept = 1,
+       geom_hline(yintercept = 0,
                   linetype=2)  +
        scale_x_continuous(name = paste("PCA odds ratio for component", first_PC, "scores"),
                           limits=c(-rng_risk,rng_risk),
@@ -618,7 +638,27 @@ p_scores<-p2
              axis.ticks.y = element_line(size=1,color='red'),
              axis.ticks.x = element_line(size=1,color='red'),
              plot.margin=unit(c(0.1,0.1,0.1,0.1), 'cm')
-             )
+             )+geom_errorbarh(aes(xmin=(riskMatrix[,1]-riskSE[,1]),#*rng_loading/rng_risk,
+                                  xmax=(riskMatrix[,1]+riskSE[,1]),#*rng_loading/rng_risk,
+                                  y=(riskMatrix[,2])#*rng_loading/rng_risk
+                                  #ymin=(riskMatrix[,2]-riskSE[,2])*rng_loading/rng_risk,
+                                  #ymax=(riskMatrix[,2]+riskSE[,2])*rng_loading/rng_risk,
+
+             ),
+             height=2*riskSE[,1]*riskWhisker_percentage,
+             #position=position_dodge()
+
+             )+
+       geom_errorbar(aes(ymin=(riskMatrix[,2]-riskSE[,2]),#*rng_loading/rng_risk,
+                         ymax=(riskMatrix[,2]+riskSE[,2]),#*rng_loading/rng_risk,
+                         x=(riskMatrix[,1])#*rng_loading/rng_risk
+                         #ymin=(riskMatrix[,2]-riskSE[,2])*rng_loading/rng_risk,
+                         #ymax=(riskMatrix[,2]+riskSE[,2])*rng_loading/rng_risk,
+
+       ),
+       width=2*riskSE[,2]*riskWhisker_percentage,
+       #position=position_dodge()
+       )
 
 
 
@@ -637,6 +677,7 @@ p_scores<-p2
                       fontface = "italic",
                       vjust="outward"           ## The label is adjusted outwarded
       )
+
    }
       p2<-p3
 

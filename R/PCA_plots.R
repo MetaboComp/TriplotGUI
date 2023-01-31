@@ -19,6 +19,7 @@
 #' @param loadings_name IF I show the loadings_names or not, default T
 #' @param loadings_cutvalue Below what value the loading names are not shown
 #' @param loadings_cutpercent Below how many percentage of the max loading the loading name is not shown
+#' @param plot  plot everything or not
 #' @return A PCA plot
 #' @export
 #'
@@ -47,7 +48,8 @@ PCA_plots<-function(dataframe,
                     second_PC=2,
                     loadings_name=T,
                     loadings_cutvalue=NULL,  ### currently,  the loadings not in the range will be ignored instead of showing grey lines
-                    loadings_cutpercent=NULL
+                    loadings_cutpercent=NULL,
+                    plot=T
 
 ){
   frac_var<- function(x){ x^2/sum(x^2)}
@@ -166,7 +168,7 @@ PCA_plots<-function(dataframe,
   }
 
 
-
+if(plot==T){
   if(plottype=="scree"){
 
     library(scales)
@@ -224,11 +226,11 @@ PCA_plots<-function(dataframe,
    ## A PCA plot for PC1 and PC2
     score_plot<-ggplot(scores,
            aes(x=scores[,first_PC],
-               y=scores[,second_PC],
-               color=color_variable
+               y=scores[,second_PC]
                )) +   ## different time different color
       geom_point(
                  aes(size = size_variable,
+                     color=color_variable,
                      shape=shape_variable)) +  ## Different replicate different shape
       geom_vline(xintercept = 0,
                  linetype=2) +
@@ -604,9 +606,9 @@ PCA_plots<-function(dataframe,
 
 
   }
+}
 
-
-  plot_object$pca_pbject<-pca_object
+  plot_object$pca_object<-pca_object
 
 
 

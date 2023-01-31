@@ -10,11 +10,15 @@
 force_type <- function(Dataframe,
                         transform_all=c("numeric","factor","character")) {
 
-  if(is.vector(Dataframe)){
-    nam<-names(Dataframe)
+ # if(is.vector(Dataframe)){
+#    nam<-names(Dataframe)
+ #   Dataframe<-as.data.frame(Dataframe)
+#    colnames(Dataframe)<-nam
+ # }else{
+    nam<-colnames(Dataframe)
     Dataframe<-as.data.frame(Dataframe)
     colnames(Dataframe)<-nam
-    }
+#  }
   if(!is.data.frame(Dataframe)){
     stop("The input should be an dataframe")
   }
@@ -33,6 +37,16 @@ force_type <- function(Dataframe,
         a<-as.numeric(as.factor(Dataframe[,i]))
         ss<-cbind(ss,a)
 
+      } else if(class(Dataframe[,i])[1]%in%c("tbl_df")){
+        kk<-as.data.frame(Dataframe[,i])[,1]
+        if(is.character(kk)){
+          a<-as.numeric(as.factor(kk))
+        }else{
+          a<-as.numeric(kk)
+        }
+
+        ss<-cbind(ss,a)
+
       }
 
     }
@@ -48,6 +62,15 @@ force_type <- function(Dataframe,
         a<-as.factor(Dataframe[,i])
         ss<-cbind(ss,a)
 
+      }else if(class(Dataframe[,i])[1]%in%c("tbl_df")){
+        kk<-as.data.frame(Dataframe[,i])[,1]
+        if(is.character(kk)){
+          a<-as.factor(kk)
+        }else{
+          a<-as.factor(kk)
+        }
+
+        ss<-cbind(ss,a)
       }
 
     }
@@ -55,7 +78,7 @@ force_type <- function(Dataframe,
   }
   if(transform_all=="character"){
     for(i in 1:ncol(Dataframe)){
-      a<-as.character(Dataframe[,i])
+      a<-as.character(as.data.frame(Dataframe[,i])[,1])
       ss<-cbind(ss,a)
 
     }
