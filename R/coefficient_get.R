@@ -1,22 +1,22 @@
-#' Risk estimate. When the outcome is binary, odds ratio is calculated.
-#' When the outcome is categorical (n groups >2), the outcome is onehotencoding first and as n number odds rario is generated
-#' When the outcome is numeric, beta coefficient is calculated.
+#' Risk estimate. When the outcomee is binary, odds ratio is calculated.
+#' When the outcomee is categorical (n groups >2), the outcomee is onehotencoding first and as n number odds rario is generated
+#' When the outcomee is numeric, beta coefficient is calculated.
 #'
 #' @param TPObject A TriPlotObject
 #'
-#' @param outcome  In the format of dataframe, could be binary, categorical (>2 groups) and numeric. It is recommeneded that you put outcome one at a time
+#' @param outcomee  In the format of dataframe, could be binary, categorical (>2 groups) and numeric. It is recommeneded that you put outcomee one at a time
 #' @param confounder In the format of dataframe,confounders that need to be adjusted, if it is not null. The colnames must be given
 #' @param pair A factor variable Vector with case/control pairs of TPO observations (score rows) Used for the binary case control scenario
 #' @param CI Confidence Interval for the risk estimate (defaults to 0.95)
 #' @param multinomial logical, do multinomial regression on the categorical variables.
-#' If this option is labeled T, the first option of the levels of the factor outcome variable will be set as reference. So the users need to relevel() to set the reference group before using the function
+#' If this option is labeled T, the first option of the levels of the factor outcomee variable will be set as reference. So the users need to relevel() to set the reference group before using the function
 #' @return A list of risk estimation matrix with components in rows and (estimates, margin-of-error and p-values) in columns. The margin-of-error corresponds to half the width of the confidence interval (i.e. z * se).
 #' @export
 #'
 #' @examples
 #' See example under triPlot()
 coefficient_get <- function(TPObject,
-                     outcome,
+                     outcomee,
                      confounder=NULL,
                      multinomial=F,
                      pair=NULL,
@@ -28,8 +28,8 @@ coefficient_get <- function(TPObject,
 
 
 
-  if(class(outcome)!="data.frame"){
-  stop("The outcome should be put in as a dataframe.")
+  if(class(outcomee)!="data.frame"){
+  stop("The outcomee should be put in as a dataframe.")
   }
 
   if(!is.null(confounder)){
@@ -37,8 +37,8 @@ coefficient_get <- function(TPObject,
     stop("The confounder should be put in as a dataframe.")
 
   }
-  if(nrow(confounder)!=nrow(outcome)){
-    stop("The number of observations should be equal for the outcome and confounder")
+  if(nrow(confounder)!=nrow(outcomee)){
+    stop("The number of observations should be equal for the outcomee and confounder")
   }
   }
 
@@ -52,37 +52,37 @@ coefficient_get <- function(TPObject,
   }
 
   library(survival)
-  cat("Sometimes if you have a categorical outcome that one categorial has too few observations, error will occur.")
+  cat("Sometimes if you have a categorical outcomee that one categorial has too few observations, error will occur.")
 
 if(multinomial==F){
-  outcome_o<-onehotencoding(outcome)  ## every variable is numeric after this. So the orginal factor variables needs to befactor again
-  outcome_t<-matrix(nrow=nrow(outcome),ncol=0)
-  outcome_t<-as.data.frame(outcome_t)
+  outcomee_o<-onehotencoding(outcomee)  ## every variable is numeric after this. So the orginal factor variables needs to befactor again
+  outcomee_t<-matrix(nrow=nrow(outcomee),ncol=0)
+  outcomee_t<-as.data.frame(outcomee_t)
 
-  for (i in 1:ncol(outcome_o)){
-    if(length(table(outcome_o[,i]))==2){
+  for (i in 1:ncol(outcomee_o)){
+    if(length(table(outcomee_o[,i]))==2){
 
-        outcome_t<-cbind.data.frame(outcome_t,
-                                    factor_samesequence(as.factor(outcome_o[,i])))
-    } else{outcome_t<-cbind.data.frame(outcome_t,outcome_o[,i])}
+        outcomee_t<-cbind.data.frame(outcomee_t,
+                                    factor_samesequence(as.factor(outcomee_o[,i])))
+    } else{outcomee_t<-cbind.data.frame(outcomee_t,outcomee_o[,i])}
 
   }
-  colnames(outcome_t)<-colnames(outcome_o)
+  colnames(outcomee_t)<-colnames(outcomee_o)
 
-  factorrisk<-matrix(nrow=nrow(outcome),ncol=0)
+  factorrisk<-matrix(nrow=nrow(outcomee),ncol=0)
   factorrisk<-as.data.frame(factorrisk)
-  numericrisk<-matrix(nrow=nrow(outcome),ncol=0)
+  numericrisk<-matrix(nrow=nrow(outcomee),ncol=0)
   numericrisk<-as.data.frame(numericrisk)
   colnames_factor<-c()
   colnames_numeric<-c()
-  for (i in 1:ncol(outcome_t)){
-    if(class(outcome_t[,i])=="factor"){
-      colnames_factor<-c(colnames_factor,colnames(outcome_t)[i])
-      factorrisk<-cbind.data.frame(factorrisk,outcome_t[,i])
+  for (i in 1:ncol(outcomee_t)){
+    if(class(outcomee_t[,i])=="factor"){
+      colnames_factor<-c(colnames_factor,colnames(outcomee_t)[i])
+      factorrisk<-cbind.data.frame(factorrisk,outcomee_t[,i])
 
     } else{
-      colnames_numeric<-c(colnames_numeric,colnames(outcome_t)[i])
-      numericrisk<-cbind.data.frame(numericrisk,outcome_t[,i])
+      colnames_numeric<-c(colnames_numeric,colnames(outcomee_t)[i])
+      numericrisk<-cbind.data.frame(numericrisk,outcomee_t[,i])
     }
 
   }
@@ -92,20 +92,20 @@ if(multinomial==F){
 }
 
   if(multinomial==T){
-    factorrisk<-matrix(nrow=nrow(outcome),ncol=0)
+    factorrisk<-matrix(nrow=nrow(outcomee),ncol=0)
     factorrisk<-as.data.frame(factorrisk)
-    numericrisk<-matrix(nrow=nrow(outcome),ncol=0)
+    numericrisk<-matrix(nrow=nrow(outcomee),ncol=0)
     numericrisk<-as.data.frame(numericrisk)
     colnames_factor<-c()
     colnames_numeric<-c()
-    for (i in 1:ncol(outcome)){
-      if(class(outcome[,i])=="factor"){
-        colnames_factor<-c(colnames_factor,colnames(outcome)[i])
-        factorrisk<-cbind.data.frame(factorrisk,outcome[,i])
+    for (i in 1:ncol(outcomee)){
+      if(class(outcomee[,i])=="factor"){
+        colnames_factor<-c(colnames_factor,colnames(outcomee)[i])
+        factorrisk<-cbind.data.frame(factorrisk,outcomee[,i])
 
       } else{
-        colnames_numeric<-c(colnames_numeric,colnames(outcome)[i])
-        numericrisk<-cbind.data.frame(numericrisk,outcome[,i])
+        colnames_numeric<-c(colnames_numeric,colnames(outcomee)[i])
+        numericrisk<-cbind.data.frame(numericrisk,outcomee[,i])
       }
 
     }
@@ -275,9 +275,9 @@ if(multinomial==F){
 
   }
 
-  ####add menu to ask outcome to be in the
-  # Have you make the outcome a factor variable, if outcome is categorical, and a numeric variable if the outcome is numeric
-  #if outcome is categorical glm
+  ####add menu to ask outcomee to be in the
+  # Have you make the outcomee a factor variable, if outcomee is categorical, and a numeric variable if the outcomee is numeric
+  #if outcomee is categorical glm
   # if numeric linear regression
   if(dim(factorrisk)[2]!=0){
     z <- abs(qnorm(alpha))   #qnorm is quantile function

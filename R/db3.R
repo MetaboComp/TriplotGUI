@@ -1125,7 +1125,7 @@ db3Server<-function(id,r){
 
                       # if(!is.null(r$data_frame_6_pros61)&!is.null(input$pair)){
                          r$page3$makeRisk<-coefficient_get(TPObject=r$page3$makeTPOs,
-                                                           outcome=r$data_frame_5_pros51, ### needs to be a dataframe with numeric and factor values
+                                                           outcomee=r$data_frame_5_pros51, ### needs to be a dataframe with numeric and factor values
                                                     CI=input$CI,
 
                                                     multinomial=input$multinomial
