@@ -10,6 +10,7 @@
 #' @param CI Confidence Interval for the risk estimate (defaults to 0.95)
 #' @param multinomial logical, do multinomial regression on the categorical variables.
 #' If this option is labeled T, the first option of the levels of the factor outcomee variable will be set as reference. So the users need to relevel() to set the reference group before using the function
+#' @param partial do confounder adjustment or not
 #' @return A list of risk estimation matrix with components in rows and (estimates, margin-of-error and p-values) in columns. The margin-of-error corresponds to half the width of the confidence interval (i.e. z * se).
 #' @export
 #'
@@ -18,6 +19,7 @@
 coefficient_get <- function(TPObject,
                      outcomee,
                      confounder=NULL,
+                     partial=T,
                      multinomial=F,
                      pair=NULL,
                      CI=0.95){
@@ -120,7 +122,8 @@ if(multinomial==F){
     z <- abs(qnorm(alpha))   #qnorm is quantile function
     ##########################################################################################
     ###when there is no confounder and there is no paired infor
-    if(is.null(confounder)&is.null(pair)){
+    if((is.null(confounder)&is.null(pair))
+      |(!is.null(confounder)&is.null(pair)&patial==F)){
 
 
 
@@ -151,7 +154,7 @@ if(multinomial==F){
 
     ##########################################################################################
     ## When there is confounder and there is no paired infor
-    if(!is.null(confounder)&is.null(pair)){
+    if(!is.null(confounder)&is.null(pair)&partial==T){
 
 
       for(i in 1:ncol(numericrisk)){
@@ -185,7 +188,8 @@ if(multinomial==F){
 
       ##########################################################################################
       ###when there is no confounder and there is paired infor
-      if(is.null(confounder)&!is.null(pair)){
+      if((is.null(confounder)&!is.null(pair))
+         |(!is.null(confounder)&!is.null(pair)&patial==F)){
 
 
         library(lme4)
@@ -229,7 +233,7 @@ if(multinomial==F){
 
       ##########################################################################################
       ## When there is confounder and there is paired infor
-      if(!is.null(confounder)&!is.null(pair)){
+      if(!is.null(confounder)&!is.null(pair)&partial==T){
         library(lme4)
         library(lmerTest)
 
@@ -284,7 +288,8 @@ if(multinomial==F){
 
     if(multinomial==F){
       factorrisk_list<-list()
-    if(is.null(confounder)&is.null(pair)){
+    if((is.null(confounder)&is.null(pair))
+      |(!is.null(confounder)&is.null(pair)&patial==F)){
       for(i in 1:ncol(factorrisk)){
         factorrisk_list[[i]]<- matrix(nrow=TPObject$nComp,   ##row is component
                                        ncol=3)
@@ -309,7 +314,7 @@ if(multinomial==F){
 
 
     }
-    if(!is.null(confounder)&is.null(pair)){
+    if(!is.null(confounder)&is.null(pair)&partial==T){
       for(i in 1:ncol(factorrisk)){
         factorrisk_list[[i]]<- matrix(nrow=TPObject$nComp,   ##row is component
                                       ncol=3)
@@ -338,7 +343,8 @@ if(multinomial==F){
 
 
     }
-    if(is.null(confounder)&!is.null(pair)){
+    if((is.null(confounder)&!is.null(pair))
+      |(!is.null(confounder)&!is.null(pair)&patial==F)){
       for(i in 1:ncol(factorrisk)){
         factorrisk_list[[i]]<- matrix(nrow=TPObject$nComp,   ##row is component
                                       ncol=3)
@@ -366,7 +372,7 @@ if(multinomial==F){
 
     }
 
-    if(!is.null(confounder)&!is.null(pair)){
+    if(!is.null(confounder)&!is.null(pair)&partial==T){
       for(i in 1:ncol(factorrisk)){
         factorrisk_list[[i]]<- matrix(nrow=TPObject$nComp,   ##row is component
                                       ncol=3)
@@ -404,7 +410,8 @@ if(multinomial==F){
       library(nnet)
       factorrisk_list<-list()
 
-      if(is.null(confounder)&is.null(pair)){
+      if((is.null(confounder)&is.null(pair))
+        |(!is.null(confounder)&is.null(pair)&patial==F)){
         for(i in 1:ncol(factorrisk)){
 
           factorrisk_list[[i]]<-list()
@@ -451,7 +458,7 @@ if(multinomial==F){
 
 
       }
-      if(!is.null(confounder)&is.null(pair)){
+      if(!is.null(confounder)&is.null(pair)&partial==T){
         for(i in 1:ncol(factorrisk)){
 
           factorrisk_list[[i]]<-list()
@@ -502,7 +509,8 @@ if(multinomial==F){
         names(factorrisk_list)<-colnames(factorrisk)
 
       }
-      if(is.null(confounder)&!is.null(pair)){
+      if((is.null(confounder)&!is.null(pair))
+        |(!is.null(confounder)&!is.null(pair)&patial==F)){
         for(i in 1:ncol(factorrisk)){
 
           factorrisk_list[[i]]<-list()
@@ -548,7 +556,7 @@ if(multinomial==F){
         names(factorrisk_list)<-colnames(factorrisk)
 
       }
-      if(!is.null(confounder)&!is.null(pair)){
+      if(!is.null(confounder)&!is.null(pair)&partial==T){
         for(i in 1:ncol(factorrisk)){
 
           factorrisk_list[[i]]<-list()

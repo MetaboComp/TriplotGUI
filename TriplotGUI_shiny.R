@@ -43,6 +43,7 @@ ui <- dashboardPage(
     useShinyjs(rmd=TRUE),
     tabItems(       ### plural
       tabItem(      ### singular
+
         tabName="page1", db1UI("page1")),
       tabItem(      ### singular
         tabName="page2", db2UI("page2")),

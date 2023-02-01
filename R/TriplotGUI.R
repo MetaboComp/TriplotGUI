@@ -75,7 +75,7 @@ TriplotGUI <- function(TPObject,
                     whichRisk=NULL,  ##Which risk estimates to plot (vector of numbers)
                     riskLim,            ##Plot range for risks
                     riskWhisker_percentage=0.1,  ## whisker length is how many percentage of confidence interval (This is only for the visualization purpose)
-
+                     size=3,
 
                     riskOR=T  ##Specify whether to antilog risk layer scale (useful for log:ed risk estimates)
 

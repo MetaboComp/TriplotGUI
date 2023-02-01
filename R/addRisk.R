@@ -17,8 +17,8 @@ addRisk <- function(TPObject,
   cat('\nPlease ensure same number of components in TPO and risk matrix')
   Risk_new<-list()
 
-  for(i in 1:length(Risk))
-  {Risk_new<-c(Risk_new,Risk[[i]])
+  for(i in 1:length(Risk))            ##length should be 1 or 2
+  {Risk_new<-c(Risk_new,Risk[[i]])   ### numeric list and factor risk list
 
   }
 
