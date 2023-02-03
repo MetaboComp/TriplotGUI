@@ -13,16 +13,27 @@ db3UI<-function(id){
         width=6,
         title="The key input files ",
         fluidRow(
-        column(12,
-               tags$b("Dataframe used for Principal component analysis (Upload your data in .rds, .rda, .csv, .xlsx format.)"),
-               tags$br(),
+          column(12,
+                 tags$b("Dataframe used for estimating risk (Upload your data in .rds, .rda, .csv, .xlsx format.)"),
+                 tags$br(),
+                 tags$b("The dataframe that its variables will be used to calculate correlations with scores (optional)")
+          ),
+        column(8,
+
 
 
                fileInput(inputId=ns("file_5"),
-                         label="The dataframe that its variables will be used to calculate correlations with scores (optional)",
+                         label=NULL,
                          buttonLabel = "Upload...",
                          multiple = F,
-                         accept=c(".rds",".rda",".csv",".xlsx")),
+                         accept=c(".rds",".rda",".csv",".xlsx"))
+        ),
+        column(4,
+               uiOutput(ns("button3s_act_showplot1"))
+        )
+        ),
+        fluidRow(
+          column(12,
                div(style = "margin-top: -30px"),
                uiOutput(outputId=ns("judgefile5")),
                br(),
@@ -48,8 +59,10 @@ db3UI<-function(id){
                tableOutput(outputId = ns("hed2")),
               tableOutput(outputId = ns("hed3")),
                tableOutput(outputId = ns("hed4")),
-              uiOutput(ns('plotplotrisk'))
-        ),
+              textOutput(outputId = ns("hed5")),
+              #uiOutput(ns('plotplotrisk'))
+              plotOutput(ns("showriskplot")),
+              ),
         tags$br()
         )),
       box(width=6,
@@ -97,7 +110,7 @@ db3UI<-function(id){
                selectInput(inputId =ns("multinomial"),
                            label="Multinomial",
                            #selected ="Spearman",
-                           choices=c("Yes","No")),
+                           choices=c("No","Yes")),
 
                ### connect to page 1 input needs to be factorize
                selectInput(inputId =ns("pair"),
@@ -113,7 +126,7 @@ db3UI<-function(id){
                             max=1,
                             step=0.01),
                numericInput(inputId = ns("riskWhisker_percentage"),
-                            label="whisker length is how many percentage of confidence interval?",
+                            label="Whisker length is how many percentage of confidence interval?",
                             value=0.1,
                             min=0,
                             max=1,
@@ -121,7 +134,7 @@ db3UI<-function(id){
                selectInput(inputId =ns("riskOR"),
                            label="Do you want to risks to be plotted as odds ratio or not?",
                            #selected ="Spearman",
-                           choices=c("Yes","No"))
+                           choices=c("No","Yes"))
         ))
 
 
@@ -201,6 +214,20 @@ db3Server<-function(id,r){
                        size="md")
         )
       })
+
+      output$button3s_act_showplot1<-renderUI({
+        # req(input$file_1)
+
+        column(
+          width=4,
+          #tags$br(),
+
+          actionButton(ns('button3_act_showplot1'),
+                       label="Show plot",
+                       size="md"),
+          div(style = "margin-top: -30px")
+        )
+      })
       #####################################################################
       #######In the judgefile I check for error give value to the r$data_frame_1
       output$judgefile5<-renderUI({
@@ -247,8 +274,8 @@ db3Server<-function(id,r){
           }
           #  print(dim(r$data_frame_1))
         }else if (ext=="xlsx"){
-          library(readxl)
-          a<-reactive({read_excel(input$file_1$datapath)})
+
+          a<-reactive({openxlsx::read.xlsx(input$file_5$datapath)})
           r$data_frame_5<-a()
           if(is.null(dim(r$data_frame_5))){
 
@@ -310,7 +337,7 @@ db3Server<-function(id,r){
           }
         }else if (ext=="xlsx"){
           library(readxl)
-          a<-reactive({read_excel(input$file_6$datapath)})
+          a<-reactive({openxlsx::read.xlsx(input$file_6$datapath)})
           r$data_frame_6<-a()
           if(is.null(dim(r$data_frame_6))){
 
@@ -1057,12 +1084,12 @@ db3Server<-function(id,r){
 
         req(r$result1$pca_object$scores)
         #if(!is.null(r$data_frame_3)){
-        dim2<-dim(r$result1$pca_object$scores)[2]
+       # dim2<-dim(r$result1$pca_object$scores)[2]
         updateNumericInput(inputId = "component_limits",
-                           value=min(2,dim2),
+                           value=min(2,r$page1_pc_num),
                            min=2,
 
-                           max=dim2)
+                           max=r$page1_pc_num)
         #}
 
       },
@@ -1093,24 +1120,37 @@ db3Server<-function(id,r){
                    ignoreNULL = F)
 
 
-
+      #r$page3_riskORs=NULL
       observeEvent(input$riskOR,
                    {
                      if(input$riskOR=="Yes"){
-                       r$page3$riskORs=T
-                     }else{
-                       r$page3$riskORs=F}
+                       r$page3_riskORs=T
+                     }else if(input$riskOR=="No"){
+                       r$page3_riskORs=F}
 
-                   })
+                   },
+                   ignoreNULL = F)
+      #r$page3_multinomials=F
+
       observeEvent(input$multinomial,
                    {
                      if(input$multinomial=="Yes"){
-                       r$page3$multinomials=T
-                     }else{
-                       r$page3$multinomials=F}
+                       r$page3_multinomial=T
+                       print(r$page3_multinomials)
+                     }else if (input$multinomial=="No"){
+                       r$page3_multinomials=F
+                     }
+                     print(r$page3_multinomials)
+                   },
+                   ignoreNULL = F)
 
-                   })
-##############################################
+
+#####################################################################################################
+######################################################################################################################
+## Error zone
+
+
+      ##############################################
       ### Option for do confounder adjustment or not
       output$getconf_adj<-renderUI({
         req(r$data_frame_6_pros61)
@@ -1120,39 +1160,47 @@ db3Server<-function(id,r){
 
       })
       observeEvent(input$conf_adj,
-                   {
+                   {req(input$conf_adj)
                      if(input$conf_adj=="Yes"){
-                     r$page3$conf_adj=T
-                   }else{
-                     r$page3$conf_adj=F
-                   }
+                       r$page3$conf_adj=T
+                     }else{
+                       r$page3$conf_adj=F
+                     }
 
                    },ignoreNULL = F,
-                   ignoreInit = F)
+                   ignoreInit = F
+      )
 
-############################################################################################
+
 ########################################################################################################################################
+      ############################################################################################
+      ########################################################################################################################################
       ##### core code
       scores_comp_list<-reactive({list(r$result1$pca_object$scores,
                                        input$component_limits,
                                        r$result1$pca_object$loadings)})
       observeEvent( scores_comp_list(),
-                    {
+                    {#freezeReactiveValue(input,"component_limits")
                       if(!is.null(r$result1$pca_object$scores)){
                         r$page3$makeTPOs<-makeTPO(r$result1$pca_object$scores,
-                                                 r$result1$pca_object$loadings,
-                                                 compLimit=input$component_limits,  #input$component_limit,   #### here is actually the input from page 2
-                                                 hide_question=T)
+                                                  r$result1$pca_object$loadings,
+                                                  compLimit=input$component_limits,  #input$component_limit,   #### here is actually the input from page 2
+                                                  hide_question=T)
                       }
                     })
+      ## pass to global
+      observeEvent(input$component_limits,{
+        req(input$component_limits)
+        r$page3_component_limits<-input$component_limits
 
+      })
       TPO_list2<-reactive({list(r$page3$makeTPOs,
                                 r$data_frame_5_pros51,
-                                r$page3$multinomials,
+                                r$page3_multinomials,
                                 #r$page3$multinomial,
                                 r$page3$conf_adj,
                                 input$CI,
-                              #  input$riskWhisker_percentage#,
+                                #  input$riskWhisker_percentage#,
                                 input$pair,
                                 r$data_frame_6_pros61
       )})
@@ -1160,37 +1208,41 @@ db3Server<-function(id,r){
       observeEvent(TPO_list2(),
                    {req(r$page3$makeTPOs)
                      req(r$data_frame_5_pros51)
-                     req(r$page3$multinomials)
-                     #req( r$page3$riskORs)
+                     req(r$page3_multinomials)
+
+                     #req( r$page3_riskORs)
                      #  req(input$CI)
-                     # req(r$page3$multinomials)
+                     # req(r$page3_multinomials)
+                     #freezeReactiveValue(input,"CI")
+
                      if(!is.null(r$data_frame_5_pros51)
-                        &!is.null(r$page3$multinomials)
+                        &!is.null(r$page3_multinomials)
+
                      ){
 
 
-                    if(!is.null(r$page3$conf_adj)&!is.null(r$data_frame_6_pros61)){
+                       if(!is.null(r$page3$conf_adj)&!is.null(r$data_frame_6_pros61)){
                          req(r$data_frame_6_pros61)
                          req(r$page3$conf_adj)
                          r$page3$makeRisk<-coefficient_get(TPObject=r$page3$makeTPOs,
                                                            outcomee=r$data_frame_5_pros51, ### needs to be a dataframe with numeric and factor values
                                                            CI=input$CI,
-                                                       #    partial=r$page3$conf_adj,
-                                                           multinomial=r$page3$multinomials,
+                                                             partial=r$page3$conf_adj,
+                                                           multinomial=r$page3_multinomials,
                                                            pair=r$page3$pair,   ### orginally it is null that is why it is okay
                                                            confounder= r$data_frame_6_pros61  ### orginally it is null that is why it is okay
                          )
-        #               }else{r$page3$makeRisk<-coefficient_get(TPObject=r$page3$makeTPOs,
-        #                                                       outcomee=r$data_frame_5_pros51, ### needs to be a dataframe with numeric and factor values
-        #                                                       CI=input$CI,
-        #                                                      #partial=r$page3$conf_adj,
-        #                                                       multinomial=r$page3$multinomials,  ### orginally it is null that is why it is okay
-        #                                                      pair=r$page3$pair,   ### orginally it is null that is why it is okay
-        #                                                       #confounder= r$data_frame_6_pros61
-        #               )
+                 }else{r$page3$makeRisk<-coefficient_get(TPObject=r$page3$makeTPOs,
+                                                        outcomee=r$data_frame_5_pros51, ### needs to be a dataframe with numeric and factor values
+                                                         CI=input$CI,
+                                                         # partial=r$page3$conf_adj,
+                                                         multinomial=r$page3_multinomials,  ### orginally it is null that is why it is okay
+                                                          pair=r$page3$pair,   ### orginally it is null that is why it is okay
+                                                          #confounder= r$data_frame_6_pros61
+                                       )
 
 
-                      }
+                       }
 
                      }
 
@@ -1213,72 +1265,84 @@ db3Server<-function(id,r){
         req(r$page3$makeRisk)
         if(!is.null(r$page3$makeTPOs)&!is.null(r$page3$makeRisk)){
 
-        r$page3$addRisk<-addRisk(r$page3$makeTPOs,
-                                 r$page3$makeRisk)
+          r$page3$addRisk<-addRisk(r$page3$makeTPOs,
+                                   r$page3$makeRisk)
 
         }
       },
 
       ignoreNULL=F)
 
-
+      #####################
+      ## pass to global
+      observeEvent(r$page3$addRisk,{
+        req(r$page3$addRisk)
+        r$page3_addrisk<-r$page3$addRisk
+      },
+      ignoreNULL=F)
 
       plotrisk_list<-reactive({
         list(r$page3$addRisk,
              input$riskWhisker_percentage,
-             r$page3$riskORs)
+             r$page3_riskORs)
       })
 
 
       ##############################When riskOR is clicked there is no reaction
       observeEvent(plotrisk_list(),{
         req(r$page3$addRisk)
-        req(r$page3$riskORs)
+        req(r$page3_riskORs)
+        req(input$riskWhisker_percentage)
         if(!is.null(r$page3$addRisk)){
-        r$page3$plotss<-TriplotGUI(r$page3$addRisk,
-                                   first_PC=1, ## The first PC to map
-                                   second_PC=2, ## The first PC to map
-                                   plotLoads=TRUE, ##Whether to plot loadings (TRUE; default) or suppress them (FALSE)
-                                   plotScores=FALSE, ##Whether to plot scores (TRUE) or suppress them (FALSE; default)
-                                   plotCorr=F,##Whether to plot correlations (TRUE; default) or suppress them (FALSE)
-                                   plotRisk=T,
-                                   ##For loadings
-                                   loadLabels=TRUE, ###Whether to plot variable loading labels (TRUE; default) or not (FALSE)
-                                   loadArrowLength=0.02,###Length of arrow tip , set it as 0 if you want to remove it
-                                   loadCut=0, ###lower limit Loadings below the cut are plotted in light grey and without label
-                                   #loadLim, ##higher limit,Plot range for loadings
-                                   ##For correlations
-                                   #colCorr,##Color vector for correlations
-                                   pchCorr=16, ##Plotting character for correlations
-                                   whichCorr=NULL, ##Which correlations to plot (vector of numbers)
-                                   # corLim,##Plot range for correlation
-                                   ##For risks
-                                   # colRisk, ##Color vector for risk estimates
-                                   pchRisk=15, ##Plotting character for risk estimates
-                                   whichRisk=NULL, ##Which risk estimates to plot (vector of numbers)
-                                   # riskLim, ##Plot range for risks
-                                   riskWhisker_percentage=input$riskWhisker_percentage,## whisker length is how many percentage of confidence interval (This is only for the visualization purpose) 
-                                   riskOR=r$page3$riskORs, ##Specify whether to antilog risk layer scale (useful for log:ed risk estimates) ## Scores
-                                   size=3
-                                   # scoreLabels=FALSE ##Whether to plot observation score labels (TRUE) or not (FALSE; default)
-        )
+          r$page3$plotss<-TriplotGUI(r$page3$addRisk,
+                                     first_PC=1, ## The first PC to map
+                                     second_PC=2, ## The first PC to map
+                                     plotLoads=TRUE, ##Whether to plot loadings (TRUE; default) or suppress them (FALSE)
+                                     plotScores=FALSE, ##Whether to plot scores (TRUE) or suppress them (FALSE; default)
+                                     plotCorr=F,##Whether to plot correlations (TRUE; default) or suppress them (FALSE)
+                                     plotRisk=T,
+                                     ##For loadings
+                                     loadLabels=TRUE, ###Whether to plot variable loading labels (TRUE; default) or not (FALSE)
+                                     loadArrowLength=0.02,###Length of arrow tip , set it as 0 if you want to remove it
+                                     loadCut=0, ###lower limit Loadings below the cut are plotted in light grey and without label
+                                     #loadLim, ##higher limit,Plot range for loadings
+                                     ##For correlations
+                                     #colCorr,##Color vector for correlations
+                                     pchCorr=16, ##Plotting character for correlations
+                                     whichCorr=NULL, ##Which correlations to plot (vector of numbers)
+                                     # corLim,##Plot range for correlation
+                                     ##For risks
+                                     # colRisk, ##Color vector for risk estimates
+                                     pchRisk=15, ##Plotting character for risk estimates
+                                     whichRisk=NULL, ##Which risk estimates to plot (vector of numbers)
+                                     # riskLim, ##Plot range for risks
+                                     riskWhisker_percentage=input$riskWhisker_percentage,## whisker length is how many percentage of confidence interval (This is only for the visualization purpose)
+                                     riskOR=r$page3_riskORs, ##Specify whether to antilog risk layer scale (useful for log:ed risk estimates) ## Scores
+                                     size=3
+                                     # scoreLabels=FALSE ##Whether to plot observation score labels (TRUE) or not (FALSE; default)
+          )
         }
       },ignoreNULL=F)
-      output$plotplotrisk<-renderUI({
-        #req(input$file_5)
-        req(r$data_frame_5)
-        if(!is.null(r$page3$addRisk)){
-        renderPlot({r$page3$plotss$Risk})
-        }
+      output$showriskplot<-renderPlot({
+        req(input$button3_act_showplot1)
+        r$page3$plotss$Risk
+        # r$page2$reset_check <- 1
+        #  r$page2$plots$Correlation<-NULL
       })
-################################################################
-## test stuff
+
+     ##########################################################################################################################
+    ##################################################################################################################################
+
+
+
+    ################################################################
+      ## test stuff
       ###test stuff
       output$hed<-renderTable({
         req(r$data_frame_5)
-        req(r$page3$addRisk)
-        if(!is.null(r$page3$addRisk$scores)){
-          dim(r$page3$addRisk$scores)
+        req(r$page3$addRisk$riskMatrix)
+        if(!is.null(r$page3$addRisk$riskMatrix)){
+          head(r$page3$addRisk$riskMatrix,6)
         }
       })
       output$hed2<-renderTable({
@@ -1290,7 +1354,7 @@ db3Server<-function(id,r){
       })
 
       output$hed3<-renderTable({
-       req(r$data_frame_5)
+        req(r$data_frame_5)
         req(r$page3$makeRisk$factorrisk_list)
         if(!is.null(r$page3$makeRisk$factorrisk_list)){
           length(r$page3$makeRisk$factorrisk_list)
@@ -1302,6 +1366,11 @@ db3Server<-function(id,r){
         if(!is.null(r$data_frame_5_pros51)){
           dim(r$data_frame_5_pros51)
         }
+      })
+      output$hed5<-renderPrint({
+
+        #req(r$page3_multinomials)
+        r$page3_multinomials
       })
 
     }

@@ -6,26 +6,40 @@ db2UI<-function(id){
     fluidRow(
       width=12,
       tags$h2("Plot correlation plots")
+
+
     ),
     fluidRow(
       width=12,
-      width=12,
+
       box(
         width=6,
         title="The key input files ",
      fluidRow(
-      column(12,
+
+       column(12,
+              tags$b("Dataframe used for correlation analysis (Upload your data in .rds, .rda, .csv, .xlsx format.)"),
+              tags$br(),
+              tags$b("The dataframe that its variables will be used to calculate correlations with scores (optional)")
+              ),
+      column(8,
              #style="background-color:#b1f6c6",
              #helpText("Key Input"),
-             tags$b("Dataframe used for Principal component analysis (Upload your data in .rds, .rda, .csv, .xlsx format.)"),
-             tags$br(),
 
 
              fileInput(inputId=ns("file_3"),
-                       label="The dataframe that its variables will be used to calculate correlations with scores (optional)",
+                       label=NULL,
                        buttonLabel = "Upload...",
                        multiple = F,
-                       accept=c(".rds",".rda",".csv",".xlsx")),
+                       accept=c(".rds",".rda",".csv",".xlsx"))
+             ),
+      column(4,
+             uiOutput(ns("button2s_act_showplot1"))
+             )
+      ),
+      fluidRow(
+        column(12,
+
              div(style = "margin-top: -30px"),
              uiOutput(outputId=ns("judgefile3")),
              br(),
@@ -47,21 +61,22 @@ db2UI<-function(id){
              # br(),
              htmlOutput(ns("datainfo_act33")),
              htmlOutput(ns("datainfo_act34")),
-             uiOutput(ns("plotplotcorr")),
-
+             #uiOutput(ns("plotplotcorr")),
+             plotOutput(ns("showplot")),
            # plotOutput(outputId = ns("plot_result")),
             #uiOutput(outputId=ns("files")),
             tableOutput(outputId = ns("hed")),
              tableOutput(outputId = ns("hed2")),
             tableOutput(outputId = ns("hed3")),
             tableOutput(outputId = ns("hed4"))
-      )),
-     tags$br()  #,
+      ))
+      ),
+     tags$br(),  #,
      #fluidRow(
     #   column(12,
     #          uiOutput(ns('createButtonUI')))
     # )
-      ),
+
      box(width=6,
          title="Other settings",
          fluidRow(
@@ -211,6 +226,26 @@ db2Server<-function(id,r){
                        size="md")
         )
       })
+
+      output$button2s_act_showplot1<-renderUI({
+        # req(input$file_1)
+
+        column(
+          width=4,
+          #tags$br(),
+
+          actionButton(ns('button2_act_showplot1'),
+                       label="Show plot",
+                       size="md"),
+          div(style = "margin-top: -30px")
+        )
+      })
+
+
+
+
+
+
       #####################################################################
       #######In the judgefile I check for error give value to the r$data_frame_3
       output$judgefile3<-renderUI({
@@ -258,8 +293,10 @@ db2Server<-function(id,r){
           #  #  print(dim(r$data_frame_3))
         }else if (ext=="xlsx"){
           library(readxl)
-          a<-reactive({read_excel(input$file_3$datapath)})
+          a<-reactive({openxlsx::read.xlsx(input$file_3$datapath)})
           r$data_frame_3<-a()
+          #r$data_frame_3<force_type(r$data_frame_3,"numeric")
+          #r$data_frame_3<-as.data.frame( r$data_frame_3)
           if(is.null(dim(r$data_frame_3))){
 
             stop("It is not a dataframe. Dimension is 0")}
@@ -320,8 +357,9 @@ db2Server<-function(id,r){
           }
         }else if (ext=="xlsx"){
           library(readxl)
-          a<-reactive({read_excel(input$file_4$datapath)})
+          a<-reactive({openxlsx::read.xlsx(input$file_4$datapath)})
           r$data_frame_4<-a()
+
           if(is.null(dim(r$data_frame_4))){
 
             stop("It is not a dataframe. Dimension is 0")
@@ -1065,19 +1103,24 @@ db2Server<-function(id,r){
 
         req(r$result1$pca_object$scores)
         #if(!is.null(r$data_frame_3)){
-        dim2<-dim(r$result1$pca_object$scores)[2]
+       # dim2<-dim(r$result1$pca_object$scores)[2]
         updateNumericInput(inputId = "component_limit",
-                           value=min(2,dim2),
+                           value=min(2,r$page1_pc_num),
                            min=2,
 
-                           max=dim2)
+                           max=r$page1_pc_num)
         #}
 
       },
       ignoreNULL = F,
       ignoreInit=T
       )
+      ## pass to global
+      observeEvent(input$component_limit,{
+        req(input$component_limit)
+        r$page2_component_limit<-input$component_limit
 
+      })
       output$getpartial<-renderUI({
         req(r$data_frame_4)
         selectInput(inputId =ns("partial"),
@@ -1213,12 +1256,41 @@ db2Server<-function(id,r){
       )
       },ignoreNULL=F)
 
-      output$plotplotcorr<-renderUI({
-        #req(input$file_3)
-        req(r$data_frame_3)
-        renderPlot({r$page2$plots$Correlation})
-       # plot(1:5)
+
+
+#########################################################################
+###### To show the stupid plot
+#     Alternative
+#     ppp <- eventReactive(input$button2_act_showplot1,
+#                           {r$page2$plots$Correlation
+#                           }
+#
+#      )
+#      output$showplot<-renderPlot({
+#        ppp()
+#      })
+  #    observeEvent(r$data_frame_1,{
+  #      updateActionButton(inputId ="button2_act_showplot1" )
+  #    })
+  #    observeEvent(r$data_frame_3,{
+  #      if()
+  #      input$button2_act_showplot1<-reactive({NULL})
+  #      updateActionButton(inputId ="button2_act_showplot1" )
+  #    })
+      output$showplot<-renderPlot({
+        req(input$button2_act_showplot1)
+        r$page2$plots$Correlation
+       # r$page2$reset_check <- 1
+      #  r$page2$plots$Correlation<-NULL
       })
+
+      ############################ How do I render to fix this problem
+      ###################################################################
+
+    #  output$plotplotcorr<-renderUI({
+    #    req(r$data_frame_3)
+    #    renderPlot({r$page2$plots$Correlation})
+    #  })
 
 
 

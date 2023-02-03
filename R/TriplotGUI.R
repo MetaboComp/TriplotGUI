@@ -446,7 +446,9 @@ p_scores<-p2
     if(riskOR==T){
       ### when riskOR is T, risk MAtrix is changed to OR the original coefficient is stored in riskMatrix_coef
       riskMatrix_coef<-riskMatrix
-      riskMatrix<-exp(riskMatrix)
+      riskMatrix<-exp(riskMatrix)   ### risk Matrix becomes exp , riskSE is still the original one
+      TPObject$riskMatrix_OR<-riskMatrix
+      TPObject$riskSE_OR<-exp(riskSE)
     }
 
     if(missing(colRisk)) {

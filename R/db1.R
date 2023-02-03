@@ -274,7 +274,13 @@ db1Server<-function(id,r){
 
 
 #####################################################################################
+##############################
+      ## pass to global
+      observeEvent(input$pc_num,{
 
+        r$page1_pc_num=input$pc_num
+      },
+      ignoreNULL = F)
 
 ##########################################################################
 ################# The action buttons, only show up when the file is there
@@ -388,7 +394,7 @@ db1Server<-function(id,r){
         #  print(dim(r$data_frame_1))
         }else if (ext=="xlsx"){
           library(readxl)
-          a<-reactive({read_excel(input$file_1$datapath)})
+          a<-reactive({openxlsx::read.xlsx(input$file_1$datapath)})
           r$data_frame_1<-a()
           if(is.null(dim(r$data_frame_1))){
 
@@ -450,7 +456,7 @@ db1Server<-function(id,r){
           }
         }else if (ext=="xlsx"){
           library(readxl)
-          a<-reactive({read_excel(input$file_2$datapath)})
+          a<-reactive({openxlsx::read.xlsx(input$file_2$datapath)})
           r$data_frame_2<-a()
           if(is.null(dim(r$data_frame_2))){
 
@@ -1122,6 +1128,14 @@ observeEvent(input$button1_act_2, {
       })
 #########################################################################
       ##############Conditional inputs
+#### simply save values
+     # r$page1$pc_num=reactiveValues()
+#      observeEvent(input$pc_num,{
+#        req(input$pc_num)
+#        r$page1$pc_num<-input$pc_num
+
+
+ #     })
 
 #############################################################
 ##### number of pc depend on the dimention of the data frame
@@ -1709,13 +1723,19 @@ observeEvent(input$button1_act_2, {
 
           })
         })
-      }
+
+       }
+
+
+
 
 
     }
   )
+  #######
 
 
+  #####
 }
 
 

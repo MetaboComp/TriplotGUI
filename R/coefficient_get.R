@@ -122,8 +122,7 @@ if(multinomial==F){
     z <- abs(qnorm(alpha))   #qnorm is quantile function
     ##########################################################################################
     ###when there is no confounder and there is no paired infor
-    if((is.null(confounder)&is.null(pair))
-      |(!is.null(confounder)&is.null(pair)&patial==F)){
+    if((is.null(confounder)&is.null(pair))|(!is.null(confounder)&is.null(pair)&partial==F)){
 
 
 
@@ -188,8 +187,7 @@ if(multinomial==F){
 
       ##########################################################################################
       ###when there is no confounder and there is paired infor
-      if((is.null(confounder)&!is.null(pair))
-         |(!is.null(confounder)&!is.null(pair)&patial==F)){
+      if((is.null(confounder)&!is.null(pair))|(!is.null(confounder)&!is.null(pair)&partial==F)){
 
 
         library(lme4)
@@ -288,8 +286,7 @@ if(multinomial==F){
 
     if(multinomial==F){
       factorrisk_list<-list()
-    if((is.null(confounder)&is.null(pair))
-      |(!is.null(confounder)&is.null(pair)&patial==F)){
+    if((is.null(confounder)&is.null(pair))|(!is.null(confounder)&is.null(pair)&partial==F)){
       for(i in 1:ncol(factorrisk)){
         factorrisk_list[[i]]<- matrix(nrow=TPObject$nComp,   ##row is component
                                        ncol=3)
@@ -343,8 +340,7 @@ if(multinomial==F){
 
 
     }
-    if((is.null(confounder)&!is.null(pair))
-      |(!is.null(confounder)&!is.null(pair)&patial==F)){
+    if((is.null(confounder)&!is.null(pair))|(!is.null(confounder)&!is.null(pair)&partial==F)){
       for(i in 1:ncol(factorrisk)){
         factorrisk_list[[i]]<- matrix(nrow=TPObject$nComp,   ##row is component
                                       ncol=3)
@@ -410,8 +406,8 @@ if(multinomial==F){
       library(nnet)
       factorrisk_list<-list()
 
-      if((is.null(confounder)&is.null(pair))
-        |(!is.null(confounder)&is.null(pair)&patial==F)){
+      if((is.null(confounder)&is.null(pair))|(!is.null(confounder)&is.null(pair)&partial==F)
+        ){
         for(i in 1:ncol(factorrisk)){
 
           factorrisk_list[[i]]<-list()
@@ -509,8 +505,7 @@ if(multinomial==F){
         names(factorrisk_list)<-colnames(factorrisk)
 
       }
-      if((is.null(confounder)&!is.null(pair))
-        |(!is.null(confounder)&!is.null(pair)&patial==F)){
+      if((is.null(confounder)&!is.null(pair))|(!is.null(confounder)&!is.null(pair)&partial==F)){
         for(i in 1:ncol(factorrisk)){
 
           factorrisk_list[[i]]<-list()
