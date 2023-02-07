@@ -31,9 +31,12 @@ db4UI<-function(id){
                             value=2,
                             min=1,
                             max=2),
+
+
                div(style = "margin-top: 30px"),
                uiOutput(ns("showtriplot")),
                tags$br(),
+
                uiOutput(ns("downloadbutton4"))
                #tableOutput(outputId = ns("hed")),
                #tableOutput(outputId = ns("hed2")),

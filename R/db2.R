@@ -63,10 +63,16 @@ db2UI<-function(id){
              htmlOutput(ns("datainfo_act33")),
              htmlOutput(ns("datainfo_act34")),
              #uiOutput(ns("plotplotcorr")),
-
+             br(),
+             br(),
              div(style = "margin-top: 30px"),
+
              uiOutput(ns("showcorrplot")),
              tags$br(),
+             br(),
+             br(),
+             br(),
+             br(),
              uiOutput(ns("downloadbutton2"))
            # plotOutput(outputId = ns("plot_result")),
             #uiOutput(outputId=ns("files")),

@@ -62,8 +62,15 @@ db3UI<-function(id){
             #   tableOutput(outputId = ns("hed4")),
             #  tableOutput(outputId = ns("hed5")),
               #uiOutput(ns('plotplotrisk'))
+            br(),
+            br(),
+            div(style = "margin-top: 30px"),
               uiOutput(ns("showriskplot")),
             tags$br(),
+            br(),
+            br(),
+            br(),
+            br(),
             uiOutput(ns("downloadbutton3"))
               ),
         tags$br()
