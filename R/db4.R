@@ -12,9 +12,14 @@ db4UI<-function(id){
           width=6,
           title="The key input files ",
           fluidRow(
-            column(8,
+            column(9,
                #style="background-color:#b1f6c6",
                #helpText("The Triplot 2.0"),
+               numericInput(inputId = ns("component_limits"),
+                            label="Number of components (You could increase the range by changeing this in page 2 and 3)",
+                            value=2,
+                            min=2,
+                            max=2),
                numericInput(inputId =ns( "first_PC"),
                             label="Which PC you want to plot as x axis",
                             value=1,
@@ -25,15 +30,20 @@ db4UI<-function(id){
                             value=2,
                             min=1,
                             max=2),
+               div(style = "margin-top: 30px"),
+               uiOutput(ns("showtriplot")),
+               uiOutput(ns("downloadbutton4")),
                tableOutput(outputId = ns("hed")),
                tableOutput(outputId = ns("hed2")),
-               textOutput(outputId = ns("hed3")),
-           #    textOutput(outputId = ns("hed4")),
+               tableOutput(outputId = ns("hed3")),
+               tableOutput(outputId = ns("hed4")),
+               tableOutput(outputId = ns("hed5"))
 
-               plotOutput(outputId = ns("plot_result"))
             ),
-            column(4,
-                   uiOutput(ns("button4s_act_showplot1")))
+
+            #column(3,
+                   uiOutput(ns("button4s_act_showplot1"))
+             #      )
 
         ),
         tags$br()
@@ -123,7 +133,10 @@ db4Server<-function(id,r){
         # req(input$file_1)
 
         column(
-          width=4,
+          width=3,
+          tags$br(),
+          tags$br(),
+          tags$br(),
           tags$br(),
           tags$br(),
           tags$br(),
@@ -134,6 +147,16 @@ db4Server<-function(id,r){
           div(style = "margin-top: -30px")
         )
       })
+############################################################
+      ## download button
+
+  output$downloadbutton4<-renderUI({
+    req(r$page4$plotss$triplot)
+    #req(r$data_frame_1)
+    downloadButton(outputId=ns("download4"),
+                   label="Download figure")
+
+  })
 
 
       ###########################################################################################################################
@@ -148,63 +171,90 @@ db4Server<-function(id,r){
              r$page3_component_limits,
              r$page2_component_limit)
       })
-      observeEvent(comlim_list(),
-                   {req(r$page1_pc_num)
-                     req(r$page3_component_limits)
-                     req(r$page2_component_limit)
+      ### logic for component limit
+      observeEvent(comlim_list(),{
+        req(r$page1_pc_num)
+        req(r$page3_component_limits)
+        req(r$page2_component_limit)
+        updateNumericInput(inputId = "component_limits",
+
+                           value=min(r$page1_pc_num,r$page3_component_limits,r$page2_component_limit),
+                           min=2,
+
+                           max=min(r$page1_pc_num,r$page3_component_limits,r$page2_component_limit),
+                           step=1
+
+        )
+      },
+      ignoreNULL = F
+
+      )
+
+      observeEvent(input$component_limits,
+                   {
                      updateNumericInput(inputId = "first_PC",
                                         value=1,
                                         min=1,
-                                        max=min(r$page1_pc_num,r$page3_component_limits,r$page2_component_limit),
+                                        max=input$component_limits,
                                         step=1)
 
                    },ignoreNULL = F
       )
-      observeEvent(comlim_list(),
-                   {req(r$page1_pc_num)
-                     req(r$page3_component_limits)
-                     req(r$page2_component_limit)
+      observeEvent(input$component_limits,
+                   {
                      updateNumericInput(inputId = "second_PC",
                                         value=2,
                                         min=1,
-                                        max=min(r$page1_pc_num,r$page3_component_limits,r$page2_component_limit),
+                                        max=input$component_limits,
                                         step=1)
 
                    },ignoreNULL = F
       )
+
+
 
       #########################################
       #plotLoad,Scores, Corr and Risk
       observeEvent(input$plotLoads,
-                   {
+                   {req(input$plotLoads)
                      if(input$plotLoads=="Yes"){
                        r$page4$plotLoads=T
                      }else{
-                       r$page4$plotLoads=F}
+                       r$page4$plotLoads=F
+                       r$page4$loadLabels=F
+                       r$page4$loadArrowLength=0.02
+                       r$page4$LoadCut=0
+                       r$page4$LoadLim=NULL}
 
                    })
       observeEvent(input$plotScores,
-                   {
+                   {req(input$plotScores)
                      if(input$plotScores=="Yes"){
                        r$page4$plotScores=T
                      }else{
-                       r$page4$plotScores=F}
+                       r$page4$plotScores=F
+                      }
 
                    })
       observeEvent(input$plotCorr,
-                   {
+                   {req(input$plotCorr)
                      if(input$plotCorr=="Yes"){
                        r$page4$plotCorr=T
                      }else{
-                       r$page4$plotCorr=F}
+                       r$page4$plotCorr=F
+                       r$page4$corrLim=NULL}
 
                    })
       observeEvent(input$plotRisk,
-                   {
+                   {req(input$plotRisk)
                      if(input$plotRisk=="Yes"){
                        r$page4$plotRisk=T
                      }else{
-                       r$page4$plotRisk=F}
+                       r$page4$plotRisk=F
+                       r$page4$riskLim=NULL
+                       r$page4$riskWhisker_percentage=0.1
+                       r$page4$riskOR=T
+                       }
 
                    })
 
@@ -247,7 +297,38 @@ db4Server<-function(id,r){
 
       })
 
+### Load Labels
+      #r$page4<- reactiveValues()
+      loadLabels_list<-reactive({list(
+        r$page4$plotLoads,
+        input$loadLabels
+      )})
+      observeEvent(loadLabels_list(),{
+        # r$page4$riskOR=NULL
+        req(input$loadLabels)
+        req( r$page4$plotLoads)
+        if(r$page4$plotLoads==T){
+        if(input$loadLabels=="Yes"){
+          r$page4$loadLabels=T
+        }else{
+          r$page4$loadLabels=F
+        }
+        }
+      },ignoreNULL=F)
+### load Arrow length
+      loadArrowLength_list<-reactive({list(
+        r$page4$plotLoads,
+        input$loadArrowLength
+      )})
+      observeEvent( loadArrowLength_list(),{
+        req( r$page4$plotLoads)
+        req( input$loadArrowLength)
+        if(r$page4$plotLoads==T){
+          r$page4$loadArrowLength<-input$loadArrowLength
+        }
+      })
 
+    #  observeEvent(r$page4$loadLabels)
 
 ##################  Load Cut
       loadCut_List<-reactive({
@@ -265,11 +346,25 @@ db4Server<-function(id,r){
                     {req(r$result1$pca_object$loadings)
                       updateNumericInput(inputId ="LoadCut",
                                          max=max(sqrt(r$result1$pca_object$loadings[,input$first_PC]^2+r$result1$pca_object$loadings[,input$second_PC]^2)),
-                                         value=max(sqrt(r$result1$pca_object$loadings[,input$first_PC]^2+r$result1$pca_object$loadings[,input$second_PC]^2)),
+                                         value=0,#max(sqrt(r$result1$pca_object$loadings[,input$first_PC]^2+r$result1$pca_object$loadings[,input$second_PC]^2)),
                                          step=0.01*max(sqrt(r$result1$pca_object$loadings[,input$first_PC]^2+r$result1$pca_object$loadings[,input$second_PC]^2))
 
                       )},ignoreNULL=F
       )
+
+      loadCut_list2<-reactive({list(
+        r$page4$plotLoads,
+        input$LoadCut
+      )})
+      observeEvent( loadCut_list2(),{
+        req( r$page4$plotLoads)
+        req( input$LoadCut)
+        if(r$page4$plotLoads==T){
+          r$page4$LoadCut<-input$LoadCut
+        }
+      })
+
+
       ##################  Load limits
       loadLim_List<-reactive({
         req(input$first_PC)
@@ -291,6 +386,19 @@ db4Server<-function(id,r){
 
                       )},ignoreNULL=F
       )
+
+
+      loadLim_list2<-reactive({list(
+        r$page4$plotLoads,
+        input$LoadLim
+      )})
+      observeEvent( loadLim_list2(),{
+        req( r$page4$plotLoads)
+        req( input$LoadLim)
+        if(r$page4$plotLoads==T){
+          r$page4$LoadLim<-input$LoadLim
+        }
+      })
 #####################################################################################################
       ### corr related things
       output$corr_related_things<-renderUI({
@@ -321,12 +429,25 @@ db4Server<-function(id,r){
                     {     req(r$page2$makeCorr$cor_estimate)
                       updateNumericInput(inputId ="corrLim",
                                          min=0,
-                                         value=1.1*max(abs(r$page2$makeCorr$cor_estimate)),
-                                         max=1.1*max(abs(r$page2$makeCorr$cor_estimate)),
-                                         step=0.01*1.1*max(abs(r$page2$makeCorr$cor_estimate))
+                                         value=1.1*max(abs(r$page2$makeCorr$cor_estimate[,c(input$first_PC,input$second_PC)])),
+                                         max=1.1*max(abs(r$page2$makeCorr$cor_estimate[,c(input$first_PC,input$second_PC)])),
+                                         step=0.01*1.1*max(abs(r$page2$makeCorr$cor_estimate[,c(input$first_PC,input$second_PC)]))
 
                       )},ignoreNULL=F
       )
+      corrLim_List2<-reactive({
+        list(input$corrLim,
+             r$page4$plotCorr)
+
+      })
+      observeEvent(corrLim_List2(),{
+        req(r$page4$plotCorr)
+        req(input$corrLim)
+        if(r$page4$plotCorr==T){
+        r$page4$corrLim<-input$corrLim
+        }
+      })
+
 ##########################################################################################
       ### Risk related things
       ## only when plor risk is true
@@ -351,7 +472,7 @@ db4Server<-function(id,r){
                        min=0,
                        step=0.01,
                        max=1),
-          ## always
+## risk OR          ## always
           selectInput(inputId =ns("riskOR"),
                       label="Risks to be plotted as odds ratio?",
 
@@ -360,43 +481,49 @@ db4Server<-function(id,r){
         }
       })
 
+
+      riskOR_list<-reactive({
+        list(input$riskOR,
+             r$page4$plotRisk)
+      })
+
       observeEvent(input$riskOR,{
        # r$page4$riskOR=NULL
-        req(input$riskOR)
+       req(input$riskOR)
+        req(r$page4$plotRisk)
+        if(r$page4$plotRisk==T){
         if(input$riskOR=="Yes"){
           r$page4$riskOR=T
         }else{
           r$page4$riskOR=F
         }
-
+        }
       },ignoreNULL=F)
 
+
+
+### riskLim
       riskLim_List<-reactive({
-        req(input$first_PC)
-        req(input$second_PC)
-        req(r$page4$plotRisk)
-        #req(input$riskOR)
-        req(r$page4$riskOR)
-        #req(r$data_frame_1)
-        list(r$page3_addrisk,
+
+        list(r$page3_addRisk,
              input$first_PC,
              input$second_PC,
              r$page4$plotRisk,
              r$data_frame_1,
-             #input$riskOR
+
              r$page4$riskOR
 
         )
       })
       observeEvent( riskLim_List(),
-                    {     req(r$page3_addrisk)
-                      #r$page4$riskOR==T
+                    {     req(r$page3_addRisk)
+                      if(!is.null(r$page4$riskOR)&!is.null(r$page4$plotRisk))
                       if(r$page4$plotRisk==T&r$page4$riskOR==T){
                         r$page4$lim_T<-#reactive({
-                          1.1*max(max(exp(r$page3_addrisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]+
-                                                     r$page3_addrisk$riskSE[,c(input$first_PC,input$second_PC),drop=F]))-1,
-                                               1-min(exp(r$page3_addrisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]-
-                                                           r$page3_addrisk$riskSE[,c(input$first_PC,input$second_PC),drop=F])))
+                          1.1*max(max(exp(r$page3_addRisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]+
+                                                     r$page3_addRisk$riskSE[,c(input$first_PC,input$second_PC),drop=F]))-1,
+                                               1-min(exp(r$page3_addRisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]-
+                                                           r$page3_addRisk$riskSE[,c(input$first_PC,input$second_PC),drop=F])))
                      #    })
                         updateNumericInput(inputId ="riskLim",
                                            min=0,
@@ -406,10 +533,10 @@ db4Server<-function(id,r){
                         )
                       }else if(r$page4$plotRisk==T&r$page4$riskOR==F){
                         r$page4$lim_F<- #reactive({
-                          1.1*max(abs(r$page3_addrisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]+
-                                                 r$page3_addrisk$riskSE[,c(input$first_PC,input$second_PC),drop=F]),
-                                           abs(r$page3_addrisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]-
-                                                 r$page3_addrisk$riskSE[,c(input$first_PC,input$second_PC),drop=F])
+                          1.1*max(abs(r$page3_addRisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]+
+                                                 r$page3_addRisk$riskSE[,c(input$first_PC,input$second_PC),drop=F]),
+                                           abs(r$page3_addRisk$riskMatrix[,c(input$first_PC,input$second_PC),drop=F]-
+                                                 r$page3_addRisk$riskSE[,c(input$first_PC,input$second_PC),drop=F])
                                            )
                           #})
                         updateNumericInput(inputId ="riskLim",
@@ -426,48 +553,241 @@ db4Server<-function(id,r){
                       },ignoreNULL=F
       )
 
+      riskLim_List2<-reactive({
+
+        list(
+            r$page4$plotRisk,
+             input$riskLim
+        )
+      })
+      observeEvent(riskLim_List2(),{
+        req(input$riskLim)
+        req(r$page4$plotRisk)
+        if(r$page4$plotRisk==T){
+          r$page4$riskLim<-input$riskLim
+        }
+
+
+      })
+
+
+      riskWhisker_percentage_list<-reactive({
+        list(r$page4$plotRisk,
+             input$riskWhisker_percentage )
+      })
+     observeEvent(riskWhisker_percentage_list(),
+                  {req(r$page4$plotRisk)
+                    req(input$riskWhisker_percentage)
+                    if(r$page4$plotRisk==T)
+                      r$page4$riskWhisker_percentage<-input$riskWhisker_percentage
+
+                    })
+
+  ###############################################################################
+
+      ###########################################################################################################
+      ### Finally co4re
+      scores_comp_list4<-reactive({
+        list(r$result1$pca_object$scores,
+             input$component_limits,
+             r$result1$pca_object$loadings,
+             input$first_PC,
+             input$second_PC,
+             r$page2_addCorr,
+             r$page3_addRisk,
+             r$page4$plotCorr,
+             r$page4$plotRisk
+             )
+        })
+      observeEvent( scores_comp_list4(),
+                    {
+                      if(!is.null(r$result1$pca_object$scores)){
+                        r$page4$makeTPO<-makeTPO(r$result1$pca_object$scores,
+                                                 r$result1$pca_object$loadings,
+                                                 compLimit=input$component_limits,
+                                                 hide_question=T)
+                        r$page4$makeTPO$scores<-r$page4$makeTPO$scores[,c(input$first_PC, input$second_PC),drop=F]
+                        r$page4$makeTPO$loadings<-r$page4$makeTPO$loadings[,c(input$first_PC,  input$second_PC),drop=F]
+                        if(!is.null(r$page2_addCorr$corrMatrix)&r$page4$plotCorr==T){
+                        r$page4$makeTPO$corrMatrix<-r$page2_addCorr$corrMatrix[,c(input$first_PC,  input$second_PC),drop=F]
+                        r$page4$makeTPO$nCorr<-r$page4$makeTPO$nCorr+nrow(r$page2_addCorr$corrMatrix)
+                        }
+                        if(!is.null(r$page3_addRisk$riskMatrix)&r$page4$plotRisk==T){
+                          r$page4$makeTPO$riskMatrix<-r$page3_addRisk$riskMatrix[,c(input$first_PC,  input$second_PC),drop=F]
+                          r$page4$makeTPO$nRisk<-r$page4$makeTPO$nRisk+nrow(r$page3_addRisk$riskMatrix)
+
+                          }
+                        if(!is.null(r$page3_addRisk$riskSE)&r$page4$plotRisk==T){
+                          r$page4$makeTPO$riskSE<-r$page3_addRisk$riskSE[,c(input$first_PC,  input$second_PC),drop=F]
+                        }
+                        if(!is.null(r$page3_addRisk$riskP)&r$page4$plotRisk==T){
+                          r$page4$makeTPO$riskP<-r$page3_addRisk$riskP[,c(input$first_PC,  input$second_PC),drop=F]
+                        }
+                      }
+
+                    })
+
+
+
+      triplot_list<-reactive({list(r$page4$makeTPO,
+                               r$data_frame_3_pros31,
+                               r$data_frame_5_pros51,
+                               r$page4$plotLoads,
+                               r$page4$plotScores,
+                               r$page4$plotCorr,
+                               r$page4$plotRisk,
+                               r$page4$LoadCut,
+                               r$page4$LoadLim,
+                               r$page4$loadLabels,
+                               r$page4$loadArrowLength,
+
+                               r$page4$corrLim,
+                               r$page4$riskLim,
+                               r$page4$riskWhisker_percentage,
+                               r$page4$riskOR,
+                               r$data_frame_4_pros41,
+                               r$data_frame_6_pros61
+
+      )})
+
+
+      observeEvent(#r$page4$makeTPO,
+                   triplot_list(),
+                   {
+        req(r$page4$makeTPO)
+      # req(r$page4$plotLoads)
+      #  req(r$page4$plotScores)
+      #  req(r$page4$plotCorr)
+      #  req(r$page4$plotRisk)
+        # req(r$page3$riskORs)
+        #req(input$riskWhisker_percentage)
+        if(!is.null(r$page4$makeTPO)){
+         # r$page4$loadLabelss<-reactive({
+        #      ifelse(!is.null(r$page4$loadLabels),
+        #         r$page4$loadLabels,
+        #         T)
+        #  })
+          r$page4$plotss<-TriplotGUI(r$page4$makeTPO,
+                                     first_PC=input$first_PC, ## The first PC to map
+                                     second_PC=input$second_PC, ## The first PC to map
+                                     plotLoads= r$page4$plotLoads, ##Whether to plot loadings (TRUE; default) or suppress them (FALSE)
+                                     plotScores=r$page4$plotScores, ##Whether to plot scores (TRUE) or suppress them (FALSE; default)F
+                                     plotCorr=r$page4$plotCorr,##Whether to plot correlations (TRUE; default) or suppress them (FALSE)
+                                     plotRisk=r$page4$plotRisk,
+                                     ##For loadings
+                                    loadLabels=r$page4$loadLabels,
+                                    #ifelse(!is.null(r$page4$loadLabels),
+                                    #              r$page4$loadLabels,
+                                    #                 F),
+
+
+                                   ###Whether to plot variable loading labels (TRUE; default) or not (FALSE)
+                                   loadArrowLength=r$page4$loadArrowLength,###Length of arrow tip , set it as 0 if you want to remove it
+                                     loadCut=r$page4$LoadCut, ###lower limit Loadings below the cut are plotted in light grey and without label
+                                     loadLim=r$page4$LoadLim, ##higher limit,Plot range for loadings
+                                     ##For correlations
+                                     #colCorr,##Color vector for correlations
+                                     pchCorr=16, ##Plotting character for correlations
+                                     whichCorr=NULL, ##Which correlations to plot (vector of numbers)
+                                     corLim=r$page4$corrLim,##Plot range for correlation
+                                     ##For risks
+                                    riskLim=r$page4$riskLim, #input$riskLim, ##Color vector for risk estimates
+                                     pchRisk=15, ##Plotting character for risk estimates
+                                     whichRisk=NULL, ##Which risk estimates to plot (vector of numbers)
+                                     # colRisk, ##Plot range for risks
+                                    riskWhisker_percentage=r$page4$riskWhisker_percentage,## whisker length is how many percentage of confidence interval (This is only for the visualization purpose)
+                                  riskOR=r$page4$riskOR,
+                                        #  ifelse(!is.null(r$page4$riskOR),
+                                        #                r$page4$riskOR,
+                                        #                 T),##Specify whether to antilog risk layer scale (useful for log:ed risk estimates) ## Scores
+                                     size=3
+                                     # scoreLabels=FALSE ##Whether to plot observation score labels (TRUE) or not (FALSE; default)
+          )
+        }
+      },ignoreNULL=F)
+
+      output$showtriplot<-renderUI({
+        req(input$button4_act_showplot1)
+        renderPlot({r$page4$plotss$triplot})
+      })
+#######################################################
+      ##########download stuff
+      output$download4<-downloadHandler(
+        filename = function(){
+        #  paste( 'iris.csv')
+        paste('iris.pdf')
+          },
+
+        content = function(file){
+          #write.csv(iris, file,row.names=F)
+          params <- list(n = input$first_PC)
+
+
+        #   wd <- getwd()
+
+         # report_path <- file.path(wd,"iris.Rmd")
+          report_path <- tempfile(fileext = ".Rmd")
+          file.copy("iris.Rmd", report_path, overwrite = TRUE)
+
+
+          id <- showNotification(
+            "Rendering report...",
+            duration = NULL,
+            closeButton = FALSE
+          )
+          on.exit(removeNotification(id), add = TRUE)
+
+          rmarkdown::render(report_path,
+                            output_file = file,
+                            params = params,
+                            envir = new.env(parent = globalenv()
+                                            )
+          )
+          }
+
+      )
 
 
       ################################################################
       ## test stuff
       ###test stuff
       output$hed<-renderTable({
-        req(r$page3_addrisk$riskMatrix)
-        req(r$data_frame_5)
-        if(!is.null(r$page3_addrisk$riskMatrix)){
-          head(r$page3_addrisk$riskMatrix,6)
-        }
+
+        req(r$page4$makeTPO$scores)
+        #if(!is.null(r$page3_addRisk$riskMatrix)){
+          head(r$page4$makeTPO$scores,6)
+        #}
       })
       output$hed2<-renderTable({
-        req(r$data_frame_5)
-        req(r$page3_addrisk$riskSE)
-        if(!is.null(r$page3_addrisk$riskSE)){
-        head(r$page3_addrisk$riskSE,6)
-        }
+
+        req(r$page4$makeTPO$corrMatrix)
+        #if(!is.null(r$page3_addRisk$riskMatrix)){
+        head(r$page4$makeTPO$corrMatrix,6)
+        #}
       })
 
-      output$hed3<-renderPrint({
-        req(r$page4$lim_T)
+      output$hed3<-renderTable({
 
-        if(!is.null(r$page4$lim_T)){
-          r$page4$lim_T
-        }
+        req(r$page4$makeTPO$riskMatrix)
+        #if(!is.null(r$page3_addRisk$riskMatrix)){
+        head(r$page4$makeTPO$riskMatrix,6)
+        #}
       })
-      output$hed4<-renderPrint({
-        req(r$page4$lim_F)
+      output$hed4<-renderTable({
 
-        if(!is.null(r$page4$lim_F)){
-          r$page4$lim_F
-        }
+        req(r$page4$makeTPO$riskSE)
+        #if(!is.null(r$page3_addRisk$riskMatrix)){
+        head(r$page4$makeTPO$riskSE,6)
+        #}
       })
-  ###############################################################################
+      output$hed5<-renderTable({
 
-      ###########################################################################################################
-      ###core
-      output$showtriplot<-renderPlot({
-        req(input$button4_act_showplot1)
-          ###the plot
+        req(r$page4$makeTPO$riskP)
+        #if(!is.null(r$page3_addRisk$riskMatrix)){
+        head(r$page4$makeTPO$riskP,6)
+        #}
       })
+
 
 
 
@@ -477,3 +797,5 @@ db4Server<-function(id,r){
 
 
 }
+
+

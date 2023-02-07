@@ -56,24 +56,23 @@ TriplotGUI <- function(TPObject,
                     plotCorr=TRUE,   ##Whether to plot correlations (TRUE; default) or suppress them (FALSE)
                     plotRisk=TRUE,      ##Whether to plot risk estimates (TRUE; default) or suppress them (FALSE)
 
-
                     ##For loadings
                     loadLabels=TRUE,   ###Whether to plot variable loading labels (TRUE; default) or not (FALSE)
                     loadArrowLength=0.02,   ###Length of arrow tip , set it as 0 if you want to remove it
                     loadCut=0,    ###lower limit Loadings below the cut are plotted in light grey and without label
-                    loadLim,   ##higher limit,Plot range for loadings
+                    loadLim=NULL,   ##higher limit,Plot range for loadings
 
                     ##For correlations
                     colCorr,   ##Color vector for correlations
                     pchCorr=16,   ##Plotting character for correlations
                     whichCorr=NULL,   ##Which correlations to plot (vector of numbers)
-                    corLim,     ##Plot range for correlations
+                    corLim=NULL,     ##Plot range for correlations
 
                     ##For risks
                     colRisk,    ##Color vector for risk estimates
                     pchRisk=15,    ##Plotting character for risk estimates
                     whichRisk=NULL,  ##Which risk estimates to plot (vector of numbers)
-                    riskLim,            ##Plot range for risks
+                    riskLim=NULL,            ##Plot range for risks
                     riskWhisker_percentage=0.1,  ## whisker length is how many percentage of confidence interval (This is only for the visualization purpose)
                      size=3,
 
@@ -110,7 +109,7 @@ TriplotGUI <- function(TPObject,
     Loadsshow <- absLoads>=loadCut # Select loadings longer than the cut
     ## Loadings below the cut are plotted in light grey and without label
 
-    if(missing(loadLim)) {   ##Plot range for loadings
+    if(is.null(loadLim)) {   ##Plot range for loadings
       rng_loading <- 1.1*loads %>% abs() %>% max()
 
     } else {
@@ -181,7 +180,7 @@ TriplotGUI <- function(TPObject,
                       function(x) sqrt(sum(x^2))) # calculate absolute length of loadings for each vairable (across components)
      Loadsshow <- absLoads>=loadCut # Select loadings longer than the cut
 
-     if(missing(loadLim)) {   ##Plot range for loadings
+     if(is.null(loadLim)) {   ##Plot range for loadings
       rng_loading <- loads %>% abs() %>% max()
 
     } else {
@@ -305,7 +304,7 @@ p_scores<-p2
     }
 
     ##If missing correlation matrix
-    if(missing(corLim)) {
+    if(is.null(corLim)) {
       rng_corr <- 1.1*max(abs(corrMatrix))
 
     } else {
@@ -401,12 +400,15 @@ p_scores<-p2
       align='hv',
       axis='tblr',
       ncol=3,
-      rel_heights=c(0.05, 0.05, 0.9),
-      rel_widths=c(0.9, 0.05, 0.05)
+      rel_heights=c(ifelse(plotScores,0.04,0.08),
+                    ifelse(plotScores,0.045,0.04),
+                    0.9),
+      rel_widths=c(0.9,
+                   ifelse(plotScores,0.045,0.04),
+                   ifelse(plotScores,0.04,0.08)
+                   ),
+      greedy=F
     )
-
-
-
 
     if(plotRisk==F|TPObject$nRisk==0){
       result$triplot<-p_final
@@ -475,7 +477,7 @@ p_scores<-p2
     }
 
     ##If missing correlation matrix
-    if(missing(riskLim)) {
+    if(is.null(riskLim)) {
       if(riskOR==T){
 
         #rng_risk <- 1.1*max(abs(exp(riskMatrix_coef-riskSE)-1),
@@ -740,6 +742,8 @@ risk_y_axis<-get_y_axis(p_risk)
 risk_xl_axis <- get_plot_component(p_risk, "xlab-b")
 risk_yl_axis <- get_plot_component(p_risk, "ylab-r")
 
+
+
 if(plotRisk==T|TPObject$nRisk>0){
 if(plotCorr==F|TPObject$nCorr==0){
   empty<-ggplot()+
@@ -760,8 +764,13 @@ if(plotCorr==F|TPObject$nCorr==0){
     align='hv',
     axis='tblr',
     ncol=3,
-    rel_heights=c(0.05, 0.05, 0.9),
-    rel_widths=c(0.9, 0.05, 0.05)
+    rel_heights=c(ifelse(plotScores,0.04,0.08),
+                  ifelse(plotScores,0.045,0.04),
+                  0.9),
+    rel_widths=c(0.9,
+                 ifelse(plotScores,0.045,0.04),
+                 ifelse(plotScores,0.04,0.08)),
+    greedy=F
   )
   p_final
   result$triplot<-p_final
@@ -800,9 +809,16 @@ if(plotCorr==F|TPObject$nCorr==0){
     align='hv',
     axis='tblr',
     ncol=5,
-    rel_heights=c(ifelse(plotScores,0.04,0.07),
-                  0.04,0.04, 0.04, 0.84),
-    rel_widths=c(0.84, 0.04, 0.04,0.04, 0.04),
+    rel_heights=c(ifelse(plotScores,0.04,0.08),
+                  ifelse(plotScores,0.04,0.04),
+                  ifelse(plotScores,0.04,0.04),
+                  ifelse(plotScores,0.045,0.04),
+                  0.84),
+    rel_widths=c(0.84,
+                 ifelse(plotScores,0.04,0.04),
+                 ifelse(plotScores,0.04,0.04),
+                 ifelse(plotScores,0.04,0.04),
+                 ifelse(plotScores,0.04, 0.08)),
     greedy=F
   )
   p_final
@@ -813,6 +829,10 @@ if(plotCorr==F|TPObject$nCorr==0){
 
 
 }
+  if(TPObject$nCorr==0&TPObject$nRisk==0){
+    p_final<-p2
+    result$triplot<-p_final
+  }
 
 
 if(plotCorr==T&TPObject$nCorr>0){

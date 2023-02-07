@@ -7,6 +7,8 @@ library(shinyWidgets)
 library(shinydashboard)
 library(shinydashboardPlus)
 
+
+TriplotGUI_shiny<-function(...){
 server <- function(input,
                    output,
                    session
@@ -15,8 +17,12 @@ server <- function(input,
   r$page1=reactiveValues()
   r$page2=reactiveValues()
   r$page3=reactiveValues()
-  r$page4=reactiveValues()
-
+  r$page4=reactiveValues(#loadLabels=T,   ## For those generated values
+                                         ## give initial value another option is to use !is.null, when the number of variables are low
+                        # riskOR=T,
+                        # riskLim=NULL
+                         )
+ # r$page4$loadLabels<-T
   db1Server("page1",r)
   db2Server("page2",r)
   db3Server("page3",r)
@@ -42,7 +48,7 @@ ui <- dashboardPage(
   dashboardBody(
     useShinyjs(rmd=TRUE),
     tabItems(       ### plural
-      tabItem(      ### singular
+      tabItem(      ### singula
 
         tabName="page1", db1UI("page1")),
       tabItem(      ### singular
@@ -61,5 +67,5 @@ ui <- dashboardPage(
 shinyApp(ui=ui,
          server=server)
 
-
+}
 

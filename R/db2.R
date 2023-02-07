@@ -62,13 +62,13 @@ db2UI<-function(id){
              htmlOutput(ns("datainfo_act33")),
              htmlOutput(ns("datainfo_act34")),
              #uiOutput(ns("plotplotcorr")),
-             plotOutput(ns("showplot")),
+             uiOutput(ns("showcorrplot"))
            # plotOutput(outputId = ns("plot_result")),
             #uiOutput(outputId=ns("files")),
-            tableOutput(outputId = ns("hed")),
-             tableOutput(outputId = ns("hed2")),
-            tableOutput(outputId = ns("hed3")),
-            tableOutput(outputId = ns("hed4"))
+            #tableOutput(outputId = ns("hed")),
+            # tableOutput(outputId = ns("hed2")),
+            #tableOutput(outputId = ns("hed3")),
+            #tableOutput(outputId = ns("hed4"))
       ))
       ),
      tags$br(),  #,
@@ -235,7 +235,7 @@ db2Server<-function(id,r){
           #tags$br(),
 
           actionButton(ns('button2_act_showplot1'),
-                       label="Show plot",
+                       label="Show&refresh plot",
                        size="md"),
           div(style = "margin-top: -30px")
         )
@@ -1096,18 +1096,21 @@ db2Server<-function(id,r){
       })
       #################################################################################################################
       #########################################logic between input
-
+      compList2<-reactive({
+        list(r$result1$pca_object$scores,
+             r$page1_pc_num)
+      })
 
       ### logic for component limit
-      observeEvent(r$result1$pca_object$scores,{
+      observeEvent(compList2(),{
 
         req(r$result1$pca_object$scores)
         #if(!is.null(r$data_frame_3)){
        # dim2<-dim(r$result1$pca_object$scores)[2]
         updateNumericInput(inputId = "component_limit",
-                           value=min(2,r$page1_pc_num),
+                           #value=min(2,r$page1_pc_num),
                            min=2,
-
+                           value=r$page1_pc_num,
                            max=r$page1_pc_num)
         #}
 
@@ -1215,6 +1218,13 @@ db2Server<-function(id,r){
         r$page2$addCorr<-addCorr(r$page2$makeTPO,
                            r$page2$makeCorr$cor_estimate)
       },ignoreNULL=F)
+
+      ### pass to global
+      observeEvent(r$page2$addCorr,{
+        req(r$page2$addCorr)
+        r$page2_addCorr<-r$page2$addCorr
+      })
+
       observeEvent(r$page2$addCorr,{
         req(r$page2$addCorr)
        req(r$data_frame_3_pros31)
@@ -1277,9 +1287,11 @@ db2Server<-function(id,r){
   #      input$button2_act_showplot1<-reactive({NULL})
   #      updateActionButton(inputId ="button2_act_showplot1" )
   #    })
-      output$showplot<-renderPlot({
+      output$showcorrplot<-renderUI({
         req(input$button2_act_showplot1)
-        r$page2$plots$Correlation
+
+          renderPlot({r$page2$plots$Correlation})
+
        # r$page2$reset_check <- 1
       #  r$page2$plots$Correlation<-NULL
       })
