@@ -1,3 +1,4 @@
+#' @export
 db3UI<-function(id){
   ns<-NS(id)
   ### a list of things that is put in the tab
@@ -142,7 +143,7 @@ db3UI<-function(id){
   )
 }
 
-
+#' @export
 
 db3Server<-function(id,r){
   moduleServer(

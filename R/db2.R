@@ -1,3 +1,4 @@
+#' @export
 db2UI<-function(id){
   ns<-NS(id)
 
@@ -151,7 +152,7 @@ db2UI<-function(id){
 }
 
 
-
+#' @export
 db2Server<-function(id,r){
   moduleServer(
     id,

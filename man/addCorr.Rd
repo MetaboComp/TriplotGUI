@@ -9,7 +9,7 @@ addCorr(TPObject, Corr)
 \arguments{
 \item{TPObject}{A TriPlotObject}
 
-\item{Corr}{A correlation matrix; TPO components in columns and correlation variables in rows. Make sure that `Corr` has rownames.}
+\item{Corr}{A correlation matrix; TPO components in columns and correlation variables in rows. Make sure that \code{Corr} has rownames.}
 }
 \value{
 A TriPlotObject with added correlations

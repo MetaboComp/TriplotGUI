@@ -2,14 +2,15 @@
 % Please edit documentation in R/coefficient_get.R
 \name{coefficient_get}
 \alias{coefficient_get}
-\title{Risk estimate. When the outcome is binary, odds ratio is calculated.
-When the outcome is categorical (n groups >2), the outcome is onehotencoding first and as n number odds rario is generated
-When the outcome is numeric, beta coefficient is calculated.}
+\title{Risk estimate. When the outcomee is binary, odds ratio is calculated.
+When the outcomee is categorical (n groups >2), the outcomee is onehotencoding first and as n number odds rario is generated
+When the outcomee is numeric, beta coefficient is calculated.}
 \usage{
 coefficient_get(
   TPObject,
-  outcome,
+  outcomee,
   confounder = NULL,
+  partial = T,
   multinomial = F,
   pair = NULL,
   CI = 0.95
@@ -18,12 +19,14 @@ coefficient_get(
 \arguments{
 \item{TPObject}{A TriPlotObject}
 
-\item{outcome}{In the format of dataframe, could be binary, categorical (>2 groups) and numeric. It is recommeneded that you put outcome one at a time}
+\item{outcomee}{In the format of dataframe, could be binary, categorical (>2 groups) and numeric. It is recommeneded that you put outcomee one at a time}
 
 \item{confounder}{In the format of dataframe,confounders that need to be adjusted, if it is not null. The colnames must be given}
 
+\item{partial}{do confounder adjustment or not}
+
 \item{multinomial}{logical, do multinomial regression on the categorical variables.
-If this option is labeled T, the first option of the levels of the factor outcome variable will be set as reference. So the users need to relevel() to set the reference group before using the function}
+If this option is labeled T, the first option of the levels of the factor outcomee variable will be set as reference. So the users need to relevel() to set the reference group before using the function}
 
 \item{pair}{A factor variable Vector with case/control pairs of TPO observations (score rows) Used for the binary case control scenario}
 
@@ -33,9 +36,9 @@ If this option is labeled T, the first option of the levels of the factor outcom
 A list of risk estimation matrix with components in rows and (estimates, margin-of-error and p-values) in columns. The margin-of-error corresponds to half the width of the confidence interval (i.e. z * se).
 }
 \description{
-Risk estimate. When the outcome is binary, odds ratio is calculated.
-When the outcome is categorical (n groups >2), the outcome is onehotencoding first and as n number odds rario is generated
-When the outcome is numeric, beta coefficient is calculated.
+Risk estimate. When the outcomee is binary, odds ratio is calculated.
+When the outcomee is categorical (n groups >2), the outcomee is onehotencoding first and as n number odds rario is generated
+When the outcomee is numeric, beta coefficient is calculated.
 }
 \examples{
 See example under triPlot()

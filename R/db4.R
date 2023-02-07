@@ -1,3 +1,4 @@
+#' @export
 db4UI<-function(id){
   ns<-NS(id)
   ### a list of things that is put in the tab
@@ -115,7 +116,7 @@ db4UI<-function(id){
         )))))
 }
 
-
+#' @export
 
 db4Server<-function(id,r){
 

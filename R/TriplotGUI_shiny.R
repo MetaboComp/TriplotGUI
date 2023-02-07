@@ -1,14 +1,16 @@
-#####  shiny app
 
-library(shiny)
-library(shinyjs)
-library(shinyFiles)
-library(shinyWidgets)
-library(shinydashboard)
-library(shinydashboardPlus)
+#' @export
+
+
 
 
 TriplotGUI_shiny<-function(...){
+  library(shiny)
+  library(shinyjs)
+  library(shinyFiles)
+  library(shinyWidgets)
+  library(shinydashboard)
+  library(shinydashboardPlus)
 server <- function(input,
                    output,
                    session

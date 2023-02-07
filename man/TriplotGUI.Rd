@@ -15,16 +15,17 @@ TriplotGUI(
   loadLabels = TRUE,
   loadArrowLength = 0.02,
   loadCut = 0,
-  loadLim,
+  loadLim = NULL,
   colCorr,
   pchCorr = 16,
   whichCorr = NULL,
-  corLim,
+  corLim = NULL,
   colRisk,
   pchRisk = 15,
   whichRisk = NULL,
-  riskLim,
+  riskLim = NULL,
   riskWhisker_percentage = 0.1,
+  size = 3,
   riskOR = T
 )
 }
@@ -69,9 +70,9 @@ TriplotGUI(
 
 \item{riskWhisker_percentage}{default is 1/10 of the confidence interval}
 
-\item{riskOR}{Specify whether to antilog risk layer scale (useful for log:ed risk estimates)}
-
 \item{size}{font size of the name of correlation and risk variables}
+
+\item{riskOR}{Specify whether to antilog risk layer scale (useful for log:ed risk estimates)}
 }
 \value{
 A triplot obtained using base R plotting.
