@@ -64,6 +64,7 @@ db3UI<-function(id){
               #uiOutput(ns('plotplotrisk'))
             br(),
             br(),
+            br(),
             div(style = "margin-top: 30px"),
               uiOutput(ns("showriskplot")),
             tags$br(),

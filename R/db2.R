@@ -65,6 +65,7 @@ db2UI<-function(id){
              #uiOutput(ns("plotplotcorr")),
              br(),
              br(),
+             br(),
              div(style = "margin-top: 30px"),
 
              uiOutput(ns("showcorrplot")),
