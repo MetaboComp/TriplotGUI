@@ -33,12 +33,13 @@ db4UI<-function(id){
                             max=2),
                div(style = "margin-top: 30px"),
                uiOutput(ns("showtriplot")),
-               uiOutput(ns("downloadbutton4")),
-               tableOutput(outputId = ns("hed")),
-               tableOutput(outputId = ns("hed2")),
-               tableOutput(outputId = ns("hed3")),
-               tableOutput(outputId = ns("hed4")),
-               tableOutput(outputId = ns("hed5"))
+               tags$br(),
+               uiOutput(ns("downloadbutton4"))
+               #tableOutput(outputId = ns("hed")),
+               #tableOutput(outputId = ns("hed2")),
+               #tableOutput(outputId = ns("hed3")),
+               #tableOutput(outputId = ns("hed4")),
+               #tableOutput(outputId = ns("hed5"))
 
             ),
 
@@ -713,40 +714,32 @@ db4Server<-function(id,r){
       })
 #######################################################
       ##########download stuff
-      output$download4<-downloadHandler(
+      observeEvent(r$page4$plotss$triplot,{
+
+        if(!is.null(r$page4$plotss$triplot)){
+
+        output$download4<-downloadHandler(
         filename = function(){
         #  paste( 'iris.csv')
-        paste('iris.pdf')
+         "shiny_triplot.pdf"
           },
 
         content = function(file){
-          #write.csv(iris, file,row.names=F)
-          params <- list(n = input$first_PC)
+        # pdf(file,onefile=T)
+        #  r$page4$plotss$triplot
 
-
-        #   wd <- getwd()
-
-         # report_path <- file.path(wd,"iris.Rmd")
-          report_path <- tempfile(fileext = ".Rmd")
-          file.copy("iris.Rmd", report_path, overwrite = TRUE)
-
-
-          id <- showNotification(
-            "Rendering report...",
-            duration = NULL,
-            closeButton = FALSE
-          )
-          on.exit(removeNotification(id), add = TRUE)
-
-          rmarkdown::render(report_path,
-                            output_file = file,
-                            params = params,
-                            envir = new.env(parent = globalenv()
-                                            )
-          )
-          }
+        #  dev.off()
+         ggsave(file, r$page4$plotss$triplot,
+                width = 11, height = 11, dpi = 300, units = "in")
+           }
 
       )
+
+
+        }
+      })
+
+
 
 
       ################################################################

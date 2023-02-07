@@ -58,9 +58,9 @@ db1UI<-function(id){
             div(style = "margin-top: -30px"),
 
               uiOutput(ns('button1s_act_3')),
-            htmlOutput(ns("datainfo_act13")),
-             tableOutput(ns("head")),
-             tableOutput(ns("head2"))
+            htmlOutput(ns("datainfo_act13"))
+            # tableOutput(ns("head")),
+            # tableOutput(ns("head2"))
           )
         ),
 

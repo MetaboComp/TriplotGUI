@@ -56,13 +56,15 @@ db3UI<-function(id){
                # br(),
                htmlOutput(ns("datainfo_act53")),
                htmlOutput(ns("datainfo_act54")),
-               tableOutput(outputId = ns("hed")),
-              tableOutput(outputId = ns("hed2")),
+             #  tableOutput(outputId = ns("hed")),
+            #  tableOutput(outputId = ns("hed2")),
             #  tableOutput(outputId = ns("hed3")),
             #   tableOutput(outputId = ns("hed4")),
             #  tableOutput(outputId = ns("hed5")),
               #uiOutput(ns('plotplotrisk'))
-              uiOutput(ns("showriskplot"))
+              uiOutput(ns("showriskplot")),
+            tags$br(),
+            uiOutput(ns("downloadbutton3"))
               ),
         tags$br()
         )),
@@ -151,6 +153,17 @@ db3Server<-function(id,r){
     function(input,output,session){
       ns<-session$ns
 
+
+      ############################################################
+      ## download button
+
+      output$downloadbutton3<-renderUI({
+        req(r$page3$plotss$Risk)
+        #req(r$data_frame_1)
+        downloadButton(outputId=ns("download3"),
+                       label="Download figure")
+
+      })
       ##########################################################################
       ################# The action buttons, only show up when the file is there
 
@@ -1345,7 +1358,32 @@ db3Server<-function(id,r){
 
      ##########################################################################################################################
     ##################################################################################################################################
+      #######################################################
+      ##########download stuff
+      observeEvent(r$page3$plotss$Risk,{
 
+        if(!is.null(r$page3$plotss$Risk)){
+
+          output$download3<-downloadHandler(
+            filename = function(){
+              #  paste( 'iris.csv')
+              "shiny_riskplot.pdf"
+            },
+
+            content = function(file){
+              # pdf(file,onefile=T)
+              #  r$page4$plotss$triplot
+
+              #  dev.off()
+              ggsave(file, r$page3$plotss$Risk,
+                     width = 11, height = 11, dpi = 300, units = "in")
+            }
+
+          )
+
+
+        }
+      })
 
 
     ################################################################

@@ -63,7 +63,11 @@ db2UI<-function(id){
              htmlOutput(ns("datainfo_act33")),
              htmlOutput(ns("datainfo_act34")),
              #uiOutput(ns("plotplotcorr")),
-             uiOutput(ns("showcorrplot"))
+
+             div(style = "margin-top: 30px"),
+             uiOutput(ns("showcorrplot")),
+             tags$br(),
+             uiOutput(ns("downloadbutton2"))
            # plotOutput(outputId = ns("plot_result")),
             #uiOutput(outputId=ns("files")),
             #tableOutput(outputId = ns("hed")),
@@ -162,7 +166,16 @@ db2Server<-function(id,r){
       #  {req(r$'1'$dbPath)   ### The name of the tabs
       #    req(input$data_frame)
 ##################################################################################
+      ############################################################
+      ## download button
 
+      output$downloadbutton2<-renderUI({
+        req(r$page2$plots$Correlation)
+        #req(r$data_frame_1)
+        downloadButton(outputId=ns("download2"),
+                       label="Download figure")
+
+      })
       ##########################################################################
       ################# The action buttons, only show up when the file is there
 
@@ -1293,9 +1306,35 @@ db2Server<-function(id,r){
 
           renderPlot({r$page2$plots$Correlation})
 
-       # r$page2$reset_check <- 1
-      #  r$page2$plots$Correlation<-NULL
+
       })
+      #######################################################
+      ##########download stuff
+      #observeEvent(r$page2$plots$Correlation,{
+
+       # if(!is.null(r$page2$plots$Correlation)){
+
+          output$download2<-downloadHandler(
+            filename = function(){
+              #  paste( 'iris.csv')
+              "shiny_corrplot.pdf"
+            },
+
+            content = function(file){
+              # pdf(file,onefile=T)
+              #  r$page4$plotss$triplot
+
+              #  dev.off()
+              ggsave(file, r$page2$plots$Correlation,
+                     width = 11, height = 11, dpi = 300, units = "in")
+            }
+
+          )
+
+
+    #    }
+   #   })
+
 
       ############################ How do I render to fix this problem
       ###################################################################
