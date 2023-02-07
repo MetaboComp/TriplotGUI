@@ -5,6 +5,34 @@ Authors@R:
     person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: What the package does (one paragraph).
+Imports:
+    mixOmics,
+    ppcor,
+    stringr,
+    stringi,
+    openxlsx,
+    ggplot2,
+    ggpubr,
+    magrittr,
+    mixOmics,
+    survival,
+    ggrepel,
+    tidyverse,
+    ggpubr,
+    kader,
+    lme4,
+    lmerTest,
+    nnet,
+    reshape2,
+    psych,
+    shiny,
+    shinyjs,
+    shinyFiles,
+    shinyWidgets,
+    shinydashboard,
+    shinydashboardPlus,
+    DiagrammeR,
+    readxl
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
